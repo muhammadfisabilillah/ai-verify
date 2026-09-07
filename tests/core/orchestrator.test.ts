@@ -4,8 +4,10 @@ import type {
   AnalysisRequest,
   ChangeSet,
   RiskAssessment,
+  VerificationResult,
 } from "../../src/core/types/index.js";
 import { CoreOrchestrator } from "../../src/core/orchestrator.js";
+import type { VerifierContext } from "../../src/verifier/verifier.js";
 
 const stubChangeSet: ChangeSet = {
   files: [],
@@ -19,8 +21,27 @@ const stubRisk: RiskAssessment = {
   factors: [],
 };
 
+const stubVerification: VerificationResult = {
+  checks: [],
+  findings: [],
+  risk: stubRisk,
+  durationMs: 0,
+};
+
+function stubVerificationEngine(calls: string[]) {
+  return {
+    run: async (
+      _context: VerifierContext,
+      _risk: RiskAssessment,
+    ): Promise<VerificationResult> => {
+      calls.push("verify");
+      return stubVerification;
+    },
+  };
+}
+
 describe("CoreOrchestrator", () => {
-  it("runs analyze then assess in order", async () => {
+  it("runs analyze then assess then verify in order", async () => {
     const calls: string[] = [];
 
     const analyzer = {
@@ -37,15 +58,23 @@ describe("CoreOrchestrator", () => {
       },
     };
 
-    const core = new CoreOrchestrator(analyzer, riskEngine);
+    const core = new CoreOrchestrator(
+      analyzer,
+      riskEngine,
+      stubVerificationEngine(calls),
+    );
 
     const output = await core.run({
       repositoryPath: ".",
       includeUncommittedChanges: true,
     });
 
-    expect(output).toEqual({ changeSet: stubChangeSet, risk: stubRisk });
-    expect(calls).toEqual(["analyze", "assess"]);
+    expect(output).toEqual({
+      changeSet: stubChangeSet,
+      risk: stubRisk,
+      verification: stubVerification,
+    });
+    expect(calls).toEqual(["analyze", "assess", "verify"]);
   });
 
   it("passes the analyzed ChangeSet to the risk engine", async () => {
@@ -63,7 +92,7 @@ describe("CoreOrchestrator", () => {
       },
     };
 
-    const core = new CoreOrchestrator(analyzer, riskEngine);
+    const core = new CoreOrchestrator(analyzer, riskEngine, stubVerificationEngine([]));
 
     await core.run({
       repositoryPath: ".",

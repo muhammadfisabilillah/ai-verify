@@ -1,4 +1,8 @@
-import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
+import type {
+  ChangeSet,
+  RiskAssessment,
+  VerificationResult,
+} from "../core/types/index.js";
 
 export function printChangeReport(changeSet: ChangeSet): void {
   console.log("");
@@ -39,4 +43,41 @@ export function printRiskReport(risk: RiskAssessment): void {
   for (const factor of risk.factors) {
     console.log(`  +${factor.score} ${factor.name} — ${factor.reason}`);
   }
+}
+
+const CHECK_ICONS: Record<string, string> = {
+  passed: "✓",
+  failed: "✗",
+  skipped: "-",
+  error: "!",
+};
+
+export function printVerificationReport(result: VerificationResult): void {
+  console.log("");
+  console.log(`Verification (${result.durationMs}ms)`);
+
+  for (const check of result.checks) {
+    const icon = CHECK_ICONS[check.status] ?? "?";
+    const detail =
+      check.findings.length > 0 ? `, ${check.findings.length} finding(s)` : "";
+
+    console.log(`  ${icon} ${check.name} — ${check.status}${detail}`);
+  }
+
+  console.log(`Findings: ${result.findings.length}`);
+
+  for (const finding of result.findings.slice(0, 20)) {
+    const location =
+      finding.file !== undefined
+        ? ` (${finding.file}${finding.line !== undefined ? `:${finding.line}` : ""})`
+        : "";
+
+    console.log(`  [${finding.severity.toUpperCase()}] ${finding.title}${location}`);
+  }
+
+  const failed = result.checks.some(
+    (check) => check.status === "failed" || check.status === "error",
+  );
+
+  console.log(`Result: ${failed ? "FAILED" : "PASSED"}`);
 }
