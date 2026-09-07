@@ -1,5 +1,5 @@
 {
-  "name": "@fisaabil_/ai-verify",
+  "name": "ai-verify",
   "version": "0.1.0",
   "description": "Open-source, risk-adaptive verification infrastructure for AI-generated software",
   "main": "./dist/cli/index.js",

@@ -19,20 +19,20 @@ target repository itself when available — never downloaded automatically.
 Once published, pick one — running stays in the terminal:
 
 ```bash
-npm install -g @fisaabil_/ai-verify
+npm install -g ai-verify
 ai-verify /path/to/your/repo
 ```
 
 Try without installing:
 
 ```bash
-npx @fisaabil_/ai-verify@latest /path/to/your/repo
+npx ai-verify@latest /path/to/your/repo
 ```
 
 Pin it for a team (inside your project):
 
 ```bash
-npm install -D @fisaabil_/ai-verify
+npm install -D ai-verify
 npx ai-verify .
 ```
 
