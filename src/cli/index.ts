@@ -4,7 +4,8 @@ import path from "node:path";
 
 import { CoreOrchestrator } from "../core/orchestrator.js";
 import { GitAnalyzer } from "../analyzer/git-analyzer.js";
-import { printChangeReport } from "./report.js";
+import { RiskEngineV01 } from "../risk/risk-engine.js";
+import { printChangeReport, printRiskReport } from "./report.js";
 
 async function main(): Promise<void> {
   const repositoryPath = process.argv[2] ?? ".";
@@ -15,11 +16,13 @@ async function main(): Promise<void> {
   };
 
   const analyzer = new GitAnalyzer();
-  const core = new CoreOrchestrator(analyzer);
+  const riskEngine = new RiskEngineV01();
+  const core = new CoreOrchestrator(analyzer, riskEngine);
 
-  const changeSet = await core.analyze(request);
+  const { changeSet, risk } = await core.run(request);
 
   printChangeReport(changeSet);
+  printRiskReport(risk);
 }
 
 main().catch((error: unknown) => {
