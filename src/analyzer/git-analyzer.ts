@@ -38,13 +38,21 @@ export class GitAnalyzer implements Analyzer {
       hasHead,
     );
 
+    const stats = await this.getBatchStats(
+      repositoryPath,
+      request.includeUncommittedChanges,
+      hasHead,
+    );
+
     const files: FileChange[] = [];
 
     for (const change of changes) {
       const fileChange = await this.createFileChange(
         repositoryPath,
         change,
+        request.includeUncommittedChanges,
         hasHead,
+        stats,
       );
 
       files.push(fileChange);
@@ -226,12 +234,16 @@ export class GitAnalyzer implements Analyzer {
   private async createFileChange(
     repositoryPath: string,
     change: GitChange,
+    includeUncommittedChanges: boolean,
     hasHead: boolean,
+    batch: Map<string, { additions: number; deletions: number }>,
   ): Promise<FileChange> {
     const stats = await this.getFileStats(
       repositoryPath,
       change,
+      includeUncommittedChanges,
       hasHead,
+      batch,
     );
 
     const language = detectLanguage(change.path);
@@ -251,10 +263,111 @@ export class GitAnalyzer implements Analyzer {
     return fileChange;
   }
 
+  private diffBaseArgs(
+    includeUncommittedChanges: boolean,
+    hasHead: boolean,
+  ): string[] {
+    if (!includeUncommittedChanges) {
+      return ["diff", "HEAD~1", "HEAD"];
+    }
+
+    return hasHead ? ["diff", "HEAD"] : ["diff", "--cached"];
+  }
+
+  private async getBatchStats(
+    repositoryPath: string,
+    includeUncommittedChanges: boolean,
+    hasHead: boolean,
+  ): Promise<Map<string, { additions: number; deletions: number }>> {
+    const stats = new Map<string, { additions: number; deletions: number }>();
+
+    if (!includeUncommittedChanges && !hasHead) {
+      return stats;
+    }
+
+    try {
+      const { stdout } = await execFileAsync(
+        "git",
+        [...this.diffBaseArgs(includeUncommittedChanges, hasHead), "--numstat", "-M"],
+        { cwd: repositoryPath },
+      );
+
+      for (const line of stdout.split("\n")) {
+        const entry = this.parseNumstatLine(line);
+
+        if (!entry) {
+          continue;
+        }
+
+        for (const key of entry.keys) {
+          if (!stats.has(key)) {
+            stats.set(key, {
+              additions: entry.additions,
+              deletions: entry.deletions,
+            });
+          }
+        }
+      }
+    } catch {
+      // Fall back to per-file queries below.
+    }
+
+    return stats;
+  }
+
+  private parseNumstatLine(line: string): {
+    keys: string[];
+    additions: number;
+    deletions: number;
+  } | undefined {
+    const parts = line.split("\t");
+
+    if (parts.length < 3) {
+      return undefined;
+    }
+
+    const pathField = parts.slice(2).join("\t").trim();
+
+    if (!pathField) {
+      return undefined;
+    }
+
+    return {
+      keys: this.expandNumstatKeys(pathField),
+      additions: this.parseStat(parts[0]),
+      deletions: this.parseStat(parts[1]),
+    };
+  }
+
+  private expandNumstatKeys(pathField: string): string[] {
+    const keys = new Set<string>([pathField]);
+
+    const arrowIndex = pathField.indexOf(" => ");
+
+    if (arrowIndex === -1) {
+      return [...keys];
+    }
+
+    keys.add(pathField.slice(0, arrowIndex).trim());
+    keys.add(pathField.slice(arrowIndex + 4).trim());
+
+    const braced = /^(.*)\{(.*) => (.*)\}(.*)$/.exec(pathField);
+
+    if (braced) {
+      const [, prefix = "", oldPart = "", newPart = "", suffix = ""] = braced;
+      keys.add(`${prefix}${oldPart.trim()}${suffix}`);
+      keys.add(`${prefix}${newPart.trim()}${suffix}`);
+    }
+
+    return [...keys].filter(Boolean);
+  }
+
   private async getFileStats(
     repositoryPath: string,
     change: GitChange,
+    includeUncommittedChanges: boolean,
     hasHead: boolean,
+    batch: Map<string, { additions: number; deletions: number }>,
   ): Promise<{
     additions: number;
     deletions: number;
@@ -273,14 +386,26 @@ export class GitAnalyzer implements Analyzer {
       }
     }
 
-    try {
-      const baseArgs = hasHead
-        ? ["diff", "HEAD", "--numstat", "-M", "--", change.path]
-        : ["diff", "--cached", "--numstat", "-M", "--", change.path];
+    const batched = batch.get(change.path);
 
-      const { stdout } = await execFileAsync("git", baseArgs, {
-        cwd: repositoryPath,
-      });
+    if (batched) {
+      return batched;
+    }
+
+    try {
+      const { stdout } = await execFileAsync(
+        "git",
+        [
+          ...this.diffBaseArgs(includeUncommittedChanges, hasHead),
+          "--numstat",
+          "-M",
+          "--",
+          change.path,
+        ],
+        {
+          cwd: repositoryPath,
+        },
+      );
 
       const line = stdout
         .split("\n")

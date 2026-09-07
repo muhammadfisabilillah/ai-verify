@@ -200,6 +200,28 @@ describe("GitAnalyzer", () => {
     });
   });
 
+  it("measures stats from the commit range in committed-only mode", async () => {
+    const repo = await initRepo();
+    write(repo, "a.txt", "v1\n");
+    await commitAll(repo, "first");
+    write(repo, "a.txt", "v2a\nv2b\n");
+    await commitAll(repo, "second");
+    // Working tree moves further: committed-only stats must ignore this.
+    write(repo, "a.txt", "v2a\nv2b\nv3-uncommitted\n");
+
+    const analyzer = new GitAnalyzer();
+    const changeSet = await analyzer.analyze({
+      repositoryPath: repo,
+      includeUncommittedChanges: false,
+    });
+
+    expect(changeSet.files).toHaveLength(1);
+    expect(changeSet.files[0]).toMatchObject({
+      additions: 2,
+      deletions: 1,
+    });
+  });
+
   it("aggregates totals across multiple files", async () => {
     const repo = await initRepo();
     write(repo, "base.txt", "base\n");
