@@ -30,9 +30,12 @@ export class GitAnalyzer implements Analyzer {
 
     await this.assertGitRepository(repositoryPath);
 
+    const hasHead = await this.hasCommitHistory(repositoryPath);
+
     const changes = await this.getGitChanges(
       repositoryPath,
       request.includeUncommittedChanges,
+      hasHead,
     );
 
     const files: FileChange[] = [];
@@ -41,6 +44,7 @@ export class GitAnalyzer implements Analyzer {
       const fileChange = await this.createFileChange(
         repositoryPath,
         change,
+        hasHead,
       );
 
       files.push(fileChange);
@@ -77,12 +81,31 @@ export class GitAnalyzer implements Analyzer {
     }
   }
 
+  private async hasCommitHistory(repositoryPath: string): Promise<boolean> {
+    try {
+      await execFileAsync("git", ["rev-parse", "--verify", "HEAD"], {
+        cwd: repositoryPath,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private async getGitChanges(
     repositoryPath: string,
     includeUncommittedChanges: boolean,
+    hasHead: boolean,
   ): Promise<GitChange[]> {
+    if (!includeUncommittedChanges && !hasHead) {
+      return [];
+    }
+
     const args = includeUncommittedChanges
-      ? ["diff", "HEAD", "--name-status", "-M"]
+      ? hasHead
+        ? ["diff", "HEAD", "--name-status", "-M"]
+        : ["diff", "--cached", "--name-status", "-M"]
       : ["diff", "HEAD~1", "HEAD", "--name-status", "-M"];
 
     const { stdout } = await execFileAsync("git", args, {
@@ -203,10 +226,12 @@ export class GitAnalyzer implements Analyzer {
   private async createFileChange(
     repositoryPath: string,
     change: GitChange,
+    hasHead: boolean,
   ): Promise<FileChange> {
     const stats = await this.getFileStats(
       repositoryPath,
       change,
+      hasHead,
     );
 
     const language = detectLanguage(change.path);
@@ -229,6 +254,7 @@ export class GitAnalyzer implements Analyzer {
   private async getFileStats(
     repositoryPath: string,
     change: GitChange,
+    hasHead: boolean,
   ): Promise<{
     additions: number;
     deletions: number;
@@ -248,13 +274,13 @@ export class GitAnalyzer implements Analyzer {
     }
 
     try {
-      const { stdout } = await execFileAsync(
-        "git",
-        ["diff", "HEAD", "--numstat", "-M", "--", change.path],
-        {
-          cwd: repositoryPath,
-        },
-      );
+      const baseArgs = hasHead
+        ? ["diff", "HEAD", "--numstat", "-M", "--", change.path]
+        : ["diff", "--cached", "--numstat", "-M", "--", change.path];
+
+      const { stdout } = await execFileAsync("git", baseArgs, {
+        cwd: repositoryPath,
+      });
 
       const line = stdout
         .split("\n")

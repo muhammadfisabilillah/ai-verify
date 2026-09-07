@@ -220,4 +220,38 @@ describe("GitAnalyzer", () => {
     expect(changeSet.totalDeletions).toBe(sumDel);
     expect(sumAdd).toBe(3);
   });
+
+  it("detects staged and untracked files when there are no commits yet", async () => {
+    const repo = await initRepo();
+    write(repo, "staged.ts", "a\nb\n");
+    write(repo, "untracked.py", "x\ny\nz\n");
+    await git(repo, ["add", "staged.ts"]);
+
+    const analyzer = new GitAnalyzer();
+    const changeSet = await analyzer.analyze({
+      repositoryPath: repo,
+      includeUncommittedChanges: true,
+    });
+
+    expect(changeSet.files).toHaveLength(2);
+    expect(changeSet.files).toContainEqual(
+      expect.objectContaining({ path: "staged.ts", changeType: "added", additions: 2 }),
+    );
+    expect(changeSet.files).toContainEqual(
+      expect.objectContaining({ path: "untracked.py", changeType: "added", additions: 3 }),
+    );
+  });
+
+  it("returns empty ChangeSet for committed-only mode with no commits yet", async () => {
+    const repo = await initRepo();
+    write(repo, "draft.md", "wip\n");
+
+    const analyzer = new GitAnalyzer();
+    const changeSet = await analyzer.analyze({
+      repositoryPath: repo,
+      includeUncommittedChanges: false,
+    });
+
+    expect(changeSet.files).toEqual([]);
+  });
 });
