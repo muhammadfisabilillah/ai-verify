@@ -4,10 +4,19 @@ import type {
   VerificationResult,
 } from "../core/types/index.js";
 
-export function printChangeReport(changeSet: ChangeSet): void {
+export function printBanner(version: string): void {
   console.log("");
-  console.log("AI Verify");
+  console.log(`AI Verify v${version} — AI can generate code. AI Verify helps verify it.`);
   console.log("------------------------------");
+}
+
+export function hasFailed(result: VerificationResult): boolean {
+  return result.checks.some(
+    (check) => check.status === "failed" || check.status === "error",
+  );
+}
+
+export function printChangeReport(changeSet: ChangeSet): void {
   console.log(`Files changed : ${changeSet.files.length}`);
   console.log(`Additions     : +${changeSet.totalAdditions}`);
   console.log(`Deletions     : -${changeSet.totalDeletions}`);
@@ -83,9 +92,5 @@ export function printVerificationReport(result: VerificationResult): void {
     console.log(`  [${finding.severity.toUpperCase()}] ${finding.title}${location}`);
   }
 
-  const failed = result.checks.some(
-    (check) => check.status === "failed" || check.status === "error",
-  );
-
-  console.log(`Result: ${failed ? "FAILED" : "PASSED"}`);
+  console.log(`Result: ${hasFailed(result) ? "FAILED" : "PASSED"}`);
 }

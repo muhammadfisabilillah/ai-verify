@@ -5,16 +5,17 @@ import path from "node:path";
 import { CoreOrchestrator } from "../core/orchestrator.js";
 import { GitAnalyzer } from "../analyzer/git-analyzer.js";
 import { RiskEngineV01 } from "../risk/risk-engine.js";
-import { VerificationEngine, selectVerifiers } from "../verifier/index.js";
+import { selectVerifiers } from "../verifier/index.js";
 import {
+  hasFailed,
+  printBanner,
   printChangeReport,
   printRiskReport,
   printVerificationReport,
 } from "./report.js";
+import { getVersion } from "./version.js";
 
-async function main(): Promise<void> {
-  const repositoryPath = process.argv[2] ?? ".";
-
+export async function run(repositoryPath: string): Promise<number> {
   const request = {
     repositoryPath: path.resolve(repositoryPath),
     includeUncommittedChanges: true,
@@ -26,9 +27,17 @@ async function main(): Promise<void> {
 
   const { changeSet, risk, verification } = await core.run(request);
 
+  printBanner(getVersion());
   printChangeReport(changeSet);
   printRiskReport(risk);
   printVerificationReport(verification);
+
+  return hasFailed(verification) ? 1 : 0;
+}
+
+async function main(): Promise<void> {
+  const repositoryPath = process.argv[2] ?? ".";
+  process.exitCode = await run(repositoryPath);
 }
 
 main().catch((error: unknown) => {

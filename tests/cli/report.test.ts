@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { VerificationResult } from "../../src/core/types/index.js";
-import { printVerificationReport } from "../../src/cli/report.js";
+import { hasFailed, printVerificationReport } from "../../src/cli/report.js";
 
 function captureOutput(fn: () => void): string[] {
   const lines: string[] = [];
@@ -59,5 +59,32 @@ describe("printVerificationReport", () => {
     expect(
       lines.some((line) => line.includes("- Type Check — skipped (TypeScript compiler")),
     ).toBe(true);
+  });
+});
+
+describe("hasFailed", () => {
+  function resultWith(status: "passed" | "failed" | "skipped" | "error"): VerificationResult {
+    return {
+      checks: [
+        { id: "c", name: "C", status, durationMs: 0, findings: [] },
+      ],
+      findings: [],
+      risk: { score: 0, level: "none", factors: [] },
+      durationMs: 0,
+    };
+  }
+
+  it.each(["failed", "error"] as const)("is true when a check %s", (status) => {
+    expect(hasFailed(resultWith(status))).toBe(true);
+  });
+
+  it.each(["passed", "skipped"] as const)("is false when a check %s", (status) => {
+    expect(hasFailed(resultWith(status))).toBe(false);
+  });
+
+  it("is false when no checks ran", () => {
+    expect(
+      hasFailed({ checks: [], findings: [], risk: { score: 0, level: "none", factors: [] }, durationMs: 0 }),
+    ).toBe(false);
   });
 });
