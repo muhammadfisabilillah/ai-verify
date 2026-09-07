@@ -1,5 +1,5 @@
 {
-  "name": "ai-verify",
+  "name": "@fisaabil_/ai-verify",
   "version": "0.1.0",
   "description": "Open-source, risk-adaptive verification infrastructure for AI-generated software",
   "main": "./dist/cli/index.js",
@@ -30,7 +30,7 @@
     "node": ">=18"
   },
   "bin": {
-    "ai-verify": "./dist/cli/index.js"
+    "ai-verify": "dist/cli/index.js"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
