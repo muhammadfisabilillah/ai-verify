@@ -4,7 +4,7 @@ import type {
   AnalysisRequest,
   ChangeSet,
   RiskAssessment,
-  VerificationResult,
+  VerificationCheck,
 } from "../../src/core/types/index.js";
 import { CoreOrchestrator } from "../../src/core/orchestrator.js";
 import type { VerifierContext } from "../../src/verifier/verifier.js";
@@ -21,23 +21,25 @@ const stubRisk: RiskAssessment = {
   factors: [],
 };
 
-const stubVerification: VerificationResult = {
-  checks: [],
-  findings: [],
-  risk: stubRisk,
+const stubCheck: VerificationCheck = {
+  id: "stub",
+  name: "Stub",
+  status: "passed",
   durationMs: 0,
+  findings: [],
 };
 
-function stubVerificationEngine(calls: string[]) {
-  return {
-    run: async (
-      _context: VerifierContext,
-      _risk: RiskAssessment,
-    ): Promise<VerificationResult> => {
-      calls.push("verify");
-      return stubVerification;
+function stubSelector(calls: string[]) {
+  return (_changeSet: ChangeSet) => [
+    {
+      id: "stub",
+      name: "Stub",
+      run: async (_context: VerifierContext): Promise<VerificationCheck> => {
+        calls.push("verify");
+        return stubCheck;
+      },
     },
-  };
+  ];
 }
 
 describe("CoreOrchestrator", () => {
@@ -61,7 +63,7 @@ describe("CoreOrchestrator", () => {
     const core = new CoreOrchestrator(
       analyzer,
       riskEngine,
-      stubVerificationEngine(calls),
+      stubSelector(calls),
     );
 
     const output = await core.run({
@@ -69,16 +71,15 @@ describe("CoreOrchestrator", () => {
       includeUncommittedChanges: true,
     });
 
-    expect(output).toEqual({
-      changeSet: stubChangeSet,
-      risk: stubRisk,
-      verification: stubVerification,
-    });
+    expect(output.changeSet).toBe(stubChangeSet);
+    expect(output.risk).toBe(stubRisk);
+    expect(output.verification.checks).toEqual([stubCheck]);
+    expect(output.verification.risk).toBe(stubRisk);
     expect(calls).toEqual(["analyze", "assess", "verify"]);
   });
 
-  it("passes the analyzed ChangeSet to the risk engine", async () => {
-    let received: ChangeSet | undefined;
+  it("passes the analyzed ChangeSet to risk and verifier selection", async () => {
+    const received: ChangeSet[] = [];
 
     const analyzer = {
       analyze: async (_request: AnalysisRequest): Promise<ChangeSet> =>
@@ -87,18 +88,24 @@ describe("CoreOrchestrator", () => {
 
     const riskEngine = {
       assess: (changeSet: ChangeSet): RiskAssessment => {
-        received = changeSet;
+        received.push(changeSet);
         return stubRisk;
       },
     };
 
-    const core = new CoreOrchestrator(analyzer, riskEngine, stubVerificationEngine([]));
+    const selector = (changeSet: ChangeSet) => {
+      received.push(changeSet);
+      return [];
+    };
 
-    await core.run({
+    const core = new CoreOrchestrator(analyzer, riskEngine, selector);
+
+    const output = await core.run({
       repositoryPath: ".",
       includeUncommittedChanges: false,
     });
 
-    expect(received).toBe(stubChangeSet);
+    expect(received).toEqual([stubChangeSet, stubChangeSet]);
+    expect(output.verification.checks).toEqual([]);
   });
 });

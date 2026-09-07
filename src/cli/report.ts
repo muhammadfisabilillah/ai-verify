@@ -56,12 +56,20 @@ export function printVerificationReport(result: VerificationResult): void {
   console.log("");
   console.log(`Verification (${result.durationMs}ms)`);
 
+  if (result.checks.length === 0) {
+    console.log("No applicable verifiers for these changes.");
+  }
+
   for (const check of result.checks) {
     const icon = CHECK_ICONS[check.status] ?? "?";
     const detail =
       check.findings.length > 0 ? `, ${check.findings.length} finding(s)` : "";
+    const reason =
+      check.reason !== undefined && check.findings.length === 0
+        ? ` (${check.reason})`
+        : "";
 
-    console.log(`  ${icon} ${check.name} — ${check.status}${detail}`);
+    console.log(`  ${icon} ${check.name} — ${check.status}${detail}${reason}`);
   }
 
   console.log(`Findings: ${result.findings.length}`);

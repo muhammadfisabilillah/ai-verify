@@ -5,7 +5,7 @@ import path from "node:path";
 import { CoreOrchestrator } from "../core/orchestrator.js";
 import { GitAnalyzer } from "../analyzer/git-analyzer.js";
 import { RiskEngineV01 } from "../risk/risk-engine.js";
-import { TypeCheckVerifier, VerificationEngine } from "../verifier/index.js";
+import { VerificationEngine, selectVerifiers } from "../verifier/index.js";
 import {
   printChangeReport,
   printRiskReport,
@@ -22,8 +22,7 @@ async function main(): Promise<void> {
 
   const analyzer = new GitAnalyzer();
   const riskEngine = new RiskEngineV01();
-  const verificationEngine = new VerificationEngine([new TypeCheckVerifier()]);
-  const core = new CoreOrchestrator(analyzer, riskEngine, verificationEngine);
+  const core = new CoreOrchestrator(analyzer, riskEngine, selectVerifiers);
 
   const { changeSet, risk, verification } = await core.run(request);
 
