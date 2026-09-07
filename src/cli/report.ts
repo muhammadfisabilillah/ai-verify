@@ -4,8 +4,24 @@ import type {
   VerificationResult,
 } from "../core/types/index.js";
 
-export function printBanner(version: string): void {
+const AI_VERIFY_ART = [
+  "█▀▀█ ▀██▀   █  █ █▀▀▀ █▀▀▄ ▀██▀ █▀▀▀ █  █",
+  "█  █  █     █  █ █▀▀  █ █   █   █▀▀   ▀▀",
+  "▀  ▀ ▄██▄    ▀▀  ▀▀▀▀ ▀ ▀  ▄██▄ ▀     ▀",
+];
+
+export function printBanner(
+  version: string,
+  fancy: boolean = process.stdout.isTTY ?? false,
+): void {
   console.log("");
+
+  if (fancy) {
+    for (const line of AI_VERIFY_ART) {
+      console.log(line);
+    }
+  }
+
   console.log(`AI Verify v${version} — AI can generate code. AI Verify helps verify it.`);
   console.log("------------------------------");
 }

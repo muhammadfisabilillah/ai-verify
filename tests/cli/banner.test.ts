@@ -33,6 +33,20 @@ describe("welcome banner", () => {
     ).toBe(true);
   });
 
+  it("shows block-letter art in fancy mode", () => {
+    const lines = captureOutput(() => printBanner("0.1.0", true));
+
+    expect(lines.some((line) => line.includes("█▀▀█"))).toBe(true);
+    expect(lines).toHaveLength(6);
+  });
+
+  it("stays compact outside a terminal", () => {
+    const lines = captureOutput(() => printBanner("0.1.0", false));
+
+    expect(lines.some((line) => line.includes("█"))).toBe(false);
+    expect(lines).toHaveLength(3);
+  });
+
   it("reads the version from package.json", () => {
     expect(getVersion()).toMatch(/^\d+\.\d+\.\d+$/);
   });
