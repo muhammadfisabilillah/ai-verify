@@ -36,8 +36,8 @@ describe("welcome banner", () => {
   it("shows block-letter art in fancy mode", () => {
     const lines = captureOutput(() => printBanner("0.1.0", true));
 
-    expect(lines.some((line) => line.includes("█▀▀█"))).toBe(true);
-    expect(lines).toHaveLength(6);
+    expect(lines.some((line) => line.includes("/_/"))).toBe(true);
+    expect(lines).toHaveLength(8);
   });
 
   it("stays compact outside a terminal", () => {
