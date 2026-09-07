@@ -14,15 +14,34 @@ that fit — then reports a clear `PASSED` / `FAILED` result.
 No config files. No extra services. Check tools (like `tsc`) are used from the
 target repository itself when available — never downloaded automatically.
 
-## Quickstart
+## Install (no clone needed)
+
+Once published, pick one — running stays in the terminal:
 
 ```bash
-git clone <this-repo>
-cd ai-verify
-npm install
-npm run build
-node dist/cli/index.js /path/to/your/repo
+npm install -g ai-verify
+ai-verify /path/to/your/repo
 ```
+
+Try without installing:
+
+```bash
+npx ai-verify@latest /path/to/your/repo
+```
+
+Pin it for a team (inside your project):
+
+```bash
+npm install -D ai-verify
+npx ai-verify .
+```
+
+No `sudo`, no config files, no extra services. The `ai-verify` command is
+created automatically on install. If global install reports a permission
+error, that comes from your npm prefix setup — prefer `npx` or point your
+npm prefix at a directory you own.
+
+## Quickstart (from source)
 
 Or during development:
 

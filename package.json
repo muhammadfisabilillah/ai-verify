@@ -2,15 +2,27 @@
   "name": "ai-verify",
   "version": "0.1.0",
   "description": "Open-source, risk-adaptive verification infrastructure for AI-generated software",
-  "main": "index.js",
+  "main": "./dist/cli/index.js",
+  "files": [
+    "dist/",
+    "README.md"
+  ],
   "scripts": {
     "test": "vitest run",
     "check": "tsc --noEmit",
     "build": "tsc",
     "dev": "tsx src/cli/index.ts",
-    "start": "node dist/cli/index.js"
+    "start": "node dist/cli/index.js",
+    "prepublishOnly": "npm run check && npm run test && npm run build"
   },
-  "keywords": [],
+  "keywords": [
+    "ai",
+    "verification",
+    "code-review",
+    "static-analysis",
+    "devtools",
+    "cli"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
