@@ -13,6 +13,7 @@ export interface VerificationCheck {
   status: VerificationStatus;
   durationMs: number;
   findings: Finding[];
+  reason?: string;
 }
 
 export interface VerificationResult {

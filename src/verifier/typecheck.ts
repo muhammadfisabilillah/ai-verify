@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { stat } from "node:fs/promises";
 import { promisify } from "node:util";
 
 import type { Finding, VerificationCheck } from "../core/types/index.js";
@@ -9,7 +10,10 @@ const execFileAsync = promisify(execFile);
 
 const TSC_ERROR_LINE = /^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.*)$/;
 
-function isTypeScriptFile(filePath: string, language: string | undefined): boolean {
+export function isTypeScriptFile(
+  filePath: string,
+  language: string | undefined,
+): boolean {
   if (language === "typescript") {
     return true;
   }
@@ -50,19 +54,80 @@ function parseFinding(line: string, index: number): Finding | undefined {
   return finding;
 }
 
+async function isAccessibleDirectory(path: string): Promise<boolean> {
+  try {
+    return (await stat(path)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+async function isTscAvailable(repositoryPath: string): Promise<boolean> {
+  try {
+    await execFileAsync("npx", ["--no-install", "tsc", "--version"], {
+      cwd: repositoryPath,
+      timeout: 60_000,
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export class TypeCheckVerifier implements Verifier {
   readonly id = "typecheck";
   readonly name = "Type Check";
 
   async run(context: VerifierContext): Promise<VerificationCheck> {
     const start = Date.now();
+    const finish = (
+      status: VerificationCheck["status"],
+      findings: Finding[] = [],
+      reason?: string,
+    ): VerificationCheck => {
+      if (reason === undefined) {
+        return {
+          id: this.id,
+          name: this.name,
+          status,
+          durationMs: Date.now() - start,
+          findings,
+        };
+      }
+
+      return {
+        id: this.id,
+        name: this.name,
+        status,
+        durationMs: Date.now() - start,
+        findings,
+        reason,
+      };
+    };
 
     const touchesTypeScript = context.changeSet.files.some((file) =>
       isTypeScriptFile(file.path, file.language),
     );
 
     if (!touchesTypeScript) {
-      return { id: this.id, name: this.name, status: "skipped", durationMs: 0, findings: [] };
+      return finish("skipped", [], "No TypeScript files changed.");
+    }
+
+    if (!(await isAccessibleDirectory(context.repositoryPath))) {
+      return finish(
+        "error",
+        [],
+        `Cannot access repository path: ${context.repositoryPath}`,
+      );
+    }
+
+    if (!(await isTscAvailable(context.repositoryPath))) {
+      return finish(
+        "skipped",
+        [],
+        "TypeScript compiler (tsc) is not available in this repository.",
+      );
     }
 
     try {
@@ -71,16 +136,8 @@ export class TypeCheckVerifier implements Verifier {
         timeout: 120_000,
       });
 
-      return {
-        id: this.id,
-        name: this.name,
-        status: "passed",
-        durationMs: Date.now() - start,
-        findings: [],
-      };
+      return finish("passed");
     } catch (error: unknown) {
-      const durationMs = Date.now() - start;
-
       if (
         error !== null &&
         typeof error === "object" &&
@@ -93,10 +150,14 @@ export class TypeCheckVerifier implements Verifier {
           .map((line, index) => parseFinding(line, index))
           .filter((finding): finding is Finding => finding !== undefined);
 
-        return { id: this.id, name: this.name, status: "failed", durationMs, findings };
+        return finish("failed", findings);
       }
 
-      return { id: this.id, name: this.name, status: "error", durationMs, findings: [] };
+      return finish(
+        "error",
+        [],
+        "Type check execution failed before producing output.",
+      );
     }
   }
 }

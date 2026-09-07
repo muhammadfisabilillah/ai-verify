@@ -1,6 +1,8 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { ChangeSet, FileChange } from "../../src/core/types/index.js";
 import { TypeCheckVerifier } from "../../src/verifier/typecheck.js";
@@ -31,6 +33,17 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 const passDir = path.resolve(testDir, "../fixtures/ts-pass");
 const failDir = path.resolve(testDir, "../fixtures/ts-fail");
 
+const tempDirs: string[] = [];
+
+afterEach(() => {
+  while (tempDirs.length > 0) {
+    const dir = tempDirs.pop();
+    if (dir) {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+});
+
 describe("TypeCheckVerifier", () => {
   it("skips when no TypeScript files changed", async () => {
     const verifier = new TypeCheckVerifier();
@@ -51,6 +64,7 @@ describe("TypeCheckVerifier", () => {
 
     expect(check.status).toBe("skipped");
     expect(check.findings).toEqual([]);
+    expect(check.reason).toMatch(/no typescript/i);
   });
 
   it(
@@ -92,5 +106,24 @@ describe("TypeCheckVerifier", () => {
     );
 
     expect(check.status).toBe("error");
+    expect(check.reason).toMatch(/cannot access/i);
   });
+
+  it(
+    "skips when tsc is not available in the target repository",
+    async () => {
+      // A bare temp dir outside this repo tree has no local typescript,
+      // so `npx --no-install tsc` must fail without touching the network.
+      const bare = mkdtempSync(path.join(tmpdir(), "ai-verify-no-tsc-"));
+      tempDirs.push(bare);
+
+      const verifier = new TypeCheckVerifier();
+      const check = await verifier.run(changeSet([tsFile("app.ts")], bare));
+
+      expect(check.status).toBe("skipped");
+      expect(check.findings).toEqual([]);
+      expect(check.reason).toMatch(/not available/i);
+    },
+    30_000,
+  );
 });
