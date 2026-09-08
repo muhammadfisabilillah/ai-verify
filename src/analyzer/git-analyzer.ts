@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -461,21 +462,18 @@ export class GitAnalyzer implements Analyzer {
   }> {
     try {
       const absolutePath = path.join(repositoryPath, filePath);
+      const content = await readFile(absolutePath, "utf8");
 
-      const { stdout } = await execFileAsync(
-        "wc",
-        ["-l", absolutePath],
-      );
+      if (content.length === 0) {
+        return { additions: 0, deletions: 0 };
+      }
 
-      const lineCount = Number.parseInt(
-        stdout.trim().split(/\s+/)[0] ?? "0",
-        10,
-      );
+      const lines = content.split("\n");
+      if (lines[lines.length - 1] === "") {
+        lines.pop();
+      }
 
-      return {
-        additions: Number.isNaN(lineCount) ? 0 : lineCount,
-        deletions: 0,
-      };
+      return { additions: lines.length, deletions: 0 };
     } catch {
       return {
         additions: 0,

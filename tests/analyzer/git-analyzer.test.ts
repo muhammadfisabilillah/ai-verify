@@ -138,6 +138,31 @@ describe("GitAnalyzer", () => {
     });
   });
 
+  it("counts untracked lines without shell dependency (no trailing newline, empty)", async () => {
+    const repo = await initRepo();
+    write(repo, "README.md", "base\n");
+    await commitAll(repo, "init");
+    write(repo, "no-newline.txt", "a\nb");
+    write(repo, "empty.txt", "");
+
+    const analyzer = new GitAnalyzer();
+    const changeSet = await analyzer.analyze({
+      repositoryPath: repo,
+      includeUncommittedChanges: true,
+    });
+
+    expect(changeSet.files.find((f) => f.path === "no-newline.txt")).toMatchObject({
+      changeType: "added",
+      additions: 2,
+      deletions: 0,
+    });
+    expect(changeSet.files.find((f) => f.path === "empty.txt")).toMatchObject({
+      changeType: "added",
+      additions: 0,
+      deletions: 0,
+    });
+  });
+
   it("detects deleted file", async () => {
     const repo = await initRepo();
     write(repo, "old.js", "const x = 1;\n");
