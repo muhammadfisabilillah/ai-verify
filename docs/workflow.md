@@ -1090,7 +1090,8 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 ## Phase 4 — Multi-Language
 
 ```text
-[ ] Python
+[x] Python lint (ruff)
+[ ] Python test runner (pytest)
 [ ] Go
 [ ] Rust
 [ ] Java

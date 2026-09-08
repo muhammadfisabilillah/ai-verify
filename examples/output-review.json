@@ -2,12 +2,12 @@
   "changeSet": {
     "files": [
       {
-        "path": "src/payments/checkout.py",
+        "path": "src/payments/checkout.go",
         "changeType": "added",
         "additions": 120,
         "deletions": 0,
         "source": "unknown",
-        "language": "python"
+        "language": "go"
       }
     ],
     "totalAdditions": 120,
@@ -20,7 +20,7 @@
       {
         "name": "Payment change",
         "score": 30,
-        "reason": "Touches payment or billing logic: src/payments/checkout.py"
+        "reason": "Touches payment or billing logic: src/payments/checkout.go"
       },
       {
         "name": "No related tests",
@@ -39,7 +39,7 @@
         {
           "name": "Payment change",
           "score": 30,
-          "reason": "Touches payment or billing logic: src/payments/checkout.py"
+          "reason": "Touches payment or billing logic: src/payments/checkout.go"
         },
         {
           "name": "No related tests",

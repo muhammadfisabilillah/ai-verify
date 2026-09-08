@@ -72,14 +72,13 @@ describe("selectVerifiers", () => {
     ).toEqual([]);
   });
 
-  it("selects nothing for python-only changes", () => {
+  it("selects ruff for python changes", () => {
     const verifiers = selectVerifiers(
       changeSet([{ path: "README.md" }, { path: "main.py", language: "python" }]),
       risk("low", 10),
     );
 
-    // Python has no verifier yet: honest empty selection, not a forced check.
-    expect(verifiers).toEqual([]);
+    expect(verifiers.map((v) => v.id)).toEqual(["ruff"]);
   });
 
   it("never drops checks at higher risk (depth only adds)", () => {

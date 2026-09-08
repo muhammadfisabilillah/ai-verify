@@ -1,6 +1,7 @@
 import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { EslintVerifier, isLintableFile } from "./eslint.js";
+import { RuffVerifier, isPythonFile } from "./ruff.js";
 import { TypeCheckVerifier, isTypeScriptFile } from "./typecheck.js";
 import type { Verifier } from "./verifier.js";
 
@@ -32,6 +33,14 @@ export function selectVerifiers(
 
   if (touchesLintable) {
     verifiers.push(new EslintVerifier());
+  }
+
+  const touchesPython = changeSet.files.some((file) =>
+    isPythonFile(file.path, file.language),
+  );
+
+  if (touchesPython) {
+    verifiers.push(new RuffVerifier());
   }
 
   return verifiers;

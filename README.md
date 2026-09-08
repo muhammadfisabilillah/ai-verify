@@ -175,7 +175,7 @@ npm run build   # build
 * [x] Phase 2 — Risk Engine v0.1 (scoring, factors, levels)
 * [x] Phase 3 — Verification Engine v0.1 (type check, lint, aggregated findings)
 * [x] Stabilisasi v0.2 — `--help/--version/--json`, risk-aware selection, `PASS / REVIEW / BLOCK`
-* [ ] Phase 4 — Multi-language (Python/Ruff first)
+* [ ] Phase 4 — Multi-language (Ruff done, pytest and more runners pending)
 * [ ] Phase 5 — Developer integrations (GitHub Action, pre-commit, `--json`)
 * [ ] Phase 6 — AI agent protocol (`PASS / REVIEW / BLOCK` loop)
 
