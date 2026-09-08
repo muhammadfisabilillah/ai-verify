@@ -8,6 +8,10 @@ import { GitAnalyzer } from "../analyzer/git-analyzer.js";
 import { RiskEngineV01 } from "../risk/risk-engine.js";
 import { deriveVerdict, selectVerifiers } from "../verifier/index.js";
 import {
+  appendHistory,
+  buildHistoryEntry,
+} from "../history/store.js";
+import {
   hasFailed,
   printBanner,
   printChangeReport,
@@ -18,6 +22,7 @@ import { getVersion } from "./version.js";
 
 export interface RunOptions {
   json?: boolean;
+  history?: boolean;
 }
 
 export interface CliArgs {
@@ -25,6 +30,7 @@ export interface CliArgs {
   json: boolean;
   help: boolean;
   version: boolean;
+  history: boolean;
 }
 
 export function parseArgs(argv: string[]): CliArgs {
@@ -32,10 +38,13 @@ export function parseArgs(argv: string[]): CliArgs {
   let json = false;
   let help = false;
   let version = false;
+  let history = true;
 
   for (const arg of argv.slice(2)) {
     if (arg === "--json") {
       json = true;
+    } else if (arg === "--no-history") {
+      history = false;
     } else if (arg === "--help" || arg === "-h") {
       help = true;
     } else if (arg === "--version" || arg === "-V") {
@@ -49,7 +58,7 @@ export function parseArgs(argv: string[]): CliArgs {
     }
   }
 
-  return { repositoryPath, json, help, version };
+  return { repositoryPath, json, help, version, history };
 }
 
 export function printHelp(): void {
@@ -62,8 +71,13 @@ Arguments:
 
 Options:
   --json        Machine-readable JSON output ({ changeSet, risk, verification, verdict })
+  --no-history  Skip recording this run to the local history
   -h, --help    Show this help
   -V, --version Show version
+
+History: every run appends one summary line to
+~/.cache/ai-verify/runs.jsonl (override with AI_VERIFY_HISTORY_FILE).
+No file contents are recorded. Use --no-history to opt out.
 
 Examples:
   ai-verify .
@@ -84,7 +98,15 @@ export async function run(
   const riskEngine = new RiskEngineV01();
   const core = new CoreOrchestrator(analyzer, riskEngine, selectVerifiers);
 
-  const { changeSet, risk, verification } = await core.run(request);
+  const output = await core.run(request);
+  const { changeSet, risk, verification } = output;
+  const verdict = deriveVerdict(verification);
+
+  if (options?.history !== false) {
+    await appendHistory(
+      buildHistoryEntry(output, verdict, getVersion(), request.repositoryPath),
+    );
+  }
 
   if (options?.json === true) {
     console.log(
@@ -92,7 +114,7 @@ export async function run(
         changeSet,
         risk,
         verification,
-        verdict: deriveVerdict(verification),
+        verdict,
       }),
     );
     return hasFailed(verification) ? 1 : 0;
@@ -119,7 +141,7 @@ export async function main(argv: string[] = process.argv): Promise<number> {
     return 0;
   }
 
-  return run(args.repositoryPath, { json: args.json });
+  return run(args.repositoryPath, { json: args.json, history: args.history });
 }
 
 const entryPath = fileURLToPath(import.meta.url);

@@ -103,6 +103,7 @@ Result: PASS
 * **Verification** — one line per check that applied, then findings, then verdict.
 * **Verdict** — `PASS` (clear), `REVIEW` (a check failed, a finding needs a human, or a risky change had no applicable verifier), `BLOCK` (a tool errored, a `critical` finding, or a `high` finding in `high`/`critical` risk). Risk alone never blocks — it selects verification depth.
 * **Machine-readable** — `ai-verify /path/to/repo --json` prints `{ changeSet, risk, verification, verdict }` for CI and AI agents. See `examples/` for samples. `ai-verify --help` lists all flags.
+* **Run history** — every run appends a one-line summary to `~/.cache/ai-verify/runs.jsonl` (override with `AI_VERIFY_HISTORY_FILE`). No file contents are recorded. Use `--no-history` to opt out.
 * **Exit code** — `0` on `PASS`, `1` on `REVIEW`/`BLOCK`, so CI pipelines fail correctly.
 
 ## Risk levels

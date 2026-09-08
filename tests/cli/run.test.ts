@@ -17,6 +17,7 @@ const tempDirs: string[] = [];
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
   while (tempDirs.length > 0) {
     const dir = tempDirs.pop();
     if (dir) {
@@ -43,8 +44,15 @@ function silenceOutput(): void {
   vi.spyOn(console, "error").mockImplementation(() => {});
 }
 
+function isolateHistory(): void {
+  const dir = mkdtempSync(path.join(tmpdir(), "ai-verify-run-hist-"));
+  tempDirs.push(dir);
+  vi.stubEnv("AI_VERIFY_HISTORY_FILE", path.join(dir, "runs.jsonl"));
+}
+
 describe("run exit code", () => {
   it("returns 0 when nothing fails", async () => {
+    isolateHistory();
     const repo = await initRepo();
     writeFileSync(path.join(repo, "README.md"), "hello\n");
     await git(repo, ["add", "-A"]);
@@ -58,6 +66,7 @@ describe("run exit code", () => {
   it(
     "returns 1 when verification fails",
     async () => {
+      isolateHistory();
       const repo = await initRepo();
       writeFileSync(
         path.join(repo, "tsconfig.json"),

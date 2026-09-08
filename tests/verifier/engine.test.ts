@@ -71,4 +71,57 @@ describe("VerificationEngine", () => {
     expect(result.checks).toHaveLength(1);
     expect(result.findings).toEqual([]);
   });
+
+  it("converts a hanging verifier into an error check at the deadline", async () => {
+    const engine = new VerificationEngine(
+      [
+        {
+          id: "slow",
+          name: "Slow",
+          run: (_ctx: VerifierContext) => new Promise<VerificationCheck>(() => {}),
+        },
+      ],
+      { timeoutMs: 50 },
+    );
+
+    const result = await engine.run({ repositoryPath: ".", changeSet }, risk);
+
+    expect(result.checks).toEqual([
+      expect.objectContaining({
+        id: "slow",
+        status: "error",
+        findings: [],
+      }),
+    ]);
+    expect(result.checks[0]?.reason).toMatch(/timed out/);
+  });
+
+  it("converts a throwing verifier into an error check and keeps going", async () => {
+    const calls: string[] = [];
+
+    const engine = new VerificationEngine([
+      {
+        id: "boom",
+        name: "Boom",
+        run: async (_ctx: VerifierContext): Promise<VerificationCheck> => {
+          throw new Error("segfault vibes");
+        },
+      },
+      {
+        id: "steady",
+        name: "Steady",
+        run: async (_ctx: VerifierContext) => {
+          calls.push("steady");
+          return stubCheck("steady");
+        },
+      },
+    ]);
+
+    const result = await engine.run({ repositoryPath: ".", changeSet }, risk);
+
+    expect(result.checks[0]).toMatchObject({ id: "boom", status: "error" });
+    expect(result.checks[0]?.reason).toMatch(/segfault vibes/);
+    expect(calls).toEqual(["steady"]);
+    expect(result.checks.map((c) => c.id)).toEqual(["boom", "steady"]);
+  });
 });

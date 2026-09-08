@@ -1081,10 +1081,12 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 ## Stabilisasi v0.2 — Selesai
 
 ```text
-[x] CLI flags (--help, --version, --json)
+[x] CLI flags (--help, --version, --json, --no-history)
 [x] Risk-aware verifier selection (risk hanya menambah depth)
 [x] Machine-readable JSON ({ changeSet, risk, verification, verdict })
 [x] Contoh output di examples/ dengan contract test
+[x] Engine hardening: per-verifier timeout, crash containment
+[x] Run history (JSONL, opt-out via --no-history)
 ```
 
 ## Phase 4 — Multi-Language

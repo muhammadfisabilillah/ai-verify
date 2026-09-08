@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -14,6 +14,7 @@ const tempDirs: string[] = [];
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
   while (tempDirs.length > 0) {
     const dir = tempDirs.pop();
     if (dir) {
@@ -21,6 +22,14 @@ afterEach(() => {
     }
   }
 });
+
+function isolateHistory(): string {
+  const dir = mkdtempSync(path.join(tmpdir(), "ai-verify-hist-"));
+  tempDirs.push(dir);
+  const file = path.join(dir, "runs.jsonl");
+  vi.stubEnv("AI_VERIFY_HISTORY_FILE", file);
+  return file;
+}
 
 async function git(cwd: string, args: string[]): Promise<void> {
   await execFileAsync("git", args, { cwd });
@@ -55,6 +64,7 @@ describe("parseArgs", () => {
       json: false,
       help: false,
       version: false,
+      history: true,
     });
   });
 
@@ -72,6 +82,12 @@ describe("parseArgs", () => {
   it("supports -h and -V shorthands", () => {
     expect(parseArgs(["node", "ai-verify", "-h"]).help).toBe(true);
     expect(parseArgs(["node", "ai-verify", "-V"]).version).toBe(true);
+  });
+
+  it("opts out of history with --no-history", () => {
+    expect(parseArgs(["node", "ai-verify", "--no-history"]).history).toBe(
+      false,
+    );
   });
 
   it("throws on unknown option", () => {
@@ -106,6 +122,7 @@ describe("help and version", () => {
 
 describe("run --json", () => {
   it("emits parseable JSON with changeSet, risk, verification", async () => {
+    const historyFile = isolateHistory();
     const repo = await initRepo();
     writeFileSync(path.join(repo, "README.md"), "hello\n");
     await git(repo, ["add", "-A"]);
@@ -128,5 +145,38 @@ describe("run --json", () => {
     expect(parsed).toHaveProperty("risk");
     expect(parsed).toHaveProperty("verification");
     expect(parsed.verdict).toBe("PASS");
+  });
+
+  it("records the run to history by default", async () => {
+    const historyFile = isolateHistory();
+    const repo = await initRepo();
+    writeFileSync(path.join(repo, "README.md"), "hello\n");
+    await git(repo, ["add", "-A"]);
+    await git(repo, ["commit", "-qm", "init"]);
+    writeFileSync(path.join(repo, "README.md"), "hello\nmore docs\n");
+
+    await captureLog(async () => {
+      await run(repo);
+    });
+
+    const entry = JSON.parse(
+      readFileSync(historyFile, "utf8").trim().split("\n")[0] as string,
+    ) as { verdict: unknown; repo: unknown };
+    expect(entry.verdict).toBe("PASS");
+    expect(entry.repo).toBe(repo);
+  });
+
+  it("skips history with history: false", async () => {
+    const historyFile = isolateHistory();
+    const repo = await initRepo();
+    writeFileSync(path.join(repo, "README.md"), "hello\n");
+    await git(repo, ["add", "-A"]);
+    await git(repo, ["commit", "-qm", "init"]);
+
+    await captureLog(async () => {
+      await run(repo, { history: false });
+    });
+
+    expect(() => readFileSync(historyFile, "utf8")).toThrow();
   });
 });
