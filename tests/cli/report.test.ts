@@ -34,7 +34,7 @@ describe("printVerificationReport", () => {
     const lines = captureOutput(() => printVerificationReport(result));
 
     expect(lines).toContain("No applicable verifiers for these changes.");
-    expect(lines).toContain("Result: PASSED");
+    expect(lines).toContain("Result: PASS");
   });
 
   it("shows skip reasons inline", () => {

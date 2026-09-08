@@ -122,9 +122,11 @@ describe("run --json", () => {
       changeSet: unknown;
       risk: unknown;
       verification: unknown;
+      verdict: unknown;
     };
     expect(parsed).toHaveProperty("changeSet");
     expect(parsed).toHaveProperty("risk");
     expect(parsed).toHaveProperty("verification");
+    expect(parsed.verdict).toBe("PASS");
   });
 });

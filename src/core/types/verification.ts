@@ -7,6 +7,8 @@ export type VerificationStatus =
   | "skipped"
   | "error";
 
+export type Verdict = "PASS" | "REVIEW" | "BLOCK";
+
 export interface VerificationCheck {
   id: string;
   name: string;

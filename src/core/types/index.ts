@@ -26,4 +26,5 @@ export type {
   VerificationStatus,
   VerificationCheck,
   VerificationResult,
+  Verdict,
 } from "./verification.js";

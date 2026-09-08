@@ -3,6 +3,7 @@ import type {
   RiskAssessment,
   VerificationResult,
 } from "../core/types/index.js";
+import { deriveVerdict } from "../verifier/verdict.js";
 
 const AI_VERIFY_ART = [
   "    _    ___  __     _______ ____  ___ _______   __",
@@ -29,9 +30,7 @@ export function printBanner(
 }
 
 export function hasFailed(result: VerificationResult): boolean {
-  return result.checks.some(
-    (check) => check.status === "failed" || check.status === "error",
-  );
+  return deriveVerdict(result) !== "PASS";
 }
 
 export function printChangeReport(changeSet: ChangeSet): void {
@@ -110,5 +109,5 @@ export function printVerificationReport(result: VerificationResult): void {
     console.log(`  [${finding.severity.toUpperCase()}] ${finding.title}${location}`);
   }
 
-  console.log(`Result: ${hasFailed(result) ? "FAILED" : "PASSED"}`);
+  console.log(`Result: ${deriveVerdict(result)}`);
 }

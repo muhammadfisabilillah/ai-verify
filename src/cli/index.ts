@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { CoreOrchestrator } from "../core/orchestrator.js";
 import { GitAnalyzer } from "../analyzer/git-analyzer.js";
 import { RiskEngineV01 } from "../risk/risk-engine.js";
-import { selectVerifiers } from "../verifier/index.js";
+import { deriveVerdict, selectVerifiers } from "../verifier/index.js";
 import {
   hasFailed,
   printBanner,
@@ -61,7 +61,7 @@ Arguments:
   [path]        Target git repository (default: .)
 
 Options:
-  --json        Machine-readable JSON output ({ changeSet, risk, verification })
+  --json        Machine-readable JSON output ({ changeSet, risk, verification, verdict })
   -h, --help    Show this help
   -V, --version Show version
 
@@ -87,7 +87,14 @@ export async function run(
   const { changeSet, risk, verification } = await core.run(request);
 
   if (options?.json === true) {
-    console.log(JSON.stringify({ changeSet, risk, verification }));
+    console.log(
+      JSON.stringify({
+        changeSet,
+        risk,
+        verification,
+        verdict: deriveVerdict(verification),
+      }),
+    );
     return hasFailed(verification) ? 1 : 0;
   }
 
