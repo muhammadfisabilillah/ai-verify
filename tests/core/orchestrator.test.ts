@@ -30,7 +30,7 @@ const stubCheck: VerificationCheck = {
 };
 
 function stubSelector(calls: string[]) {
-  return (_changeSet: ChangeSet) => [
+  return (_changeSet: ChangeSet, _risk: RiskAssessment) => [
     {
       id: "stub",
       name: "Stub",
@@ -80,6 +80,7 @@ describe("CoreOrchestrator", () => {
 
   it("passes the analyzed ChangeSet to risk and verifier selection", async () => {
     const received: ChangeSet[] = [];
+    const risksSeen: RiskAssessment[] = [];
 
     const analyzer = {
       analyze: async (_request: AnalysisRequest): Promise<ChangeSet> =>
@@ -93,8 +94,9 @@ describe("CoreOrchestrator", () => {
       },
     };
 
-    const selector = (changeSet: ChangeSet) => {
+    const selector = (changeSet: ChangeSet, risk: RiskAssessment) => {
       received.push(changeSet);
+      risksSeen.push(risk);
       return [];
     };
 
@@ -106,6 +108,7 @@ describe("CoreOrchestrator", () => {
     });
 
     expect(received).toEqual([stubChangeSet, stubChangeSet]);
+    expect(risksSeen).toEqual([stubRisk]);
     expect(output.verification.checks).toEqual([]);
   });
 });

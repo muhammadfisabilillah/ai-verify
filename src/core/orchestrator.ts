@@ -8,7 +8,7 @@ import type {
 import type { Analyzer } from "../analyzer/analyzer.js";
 import type { RiskEngine } from "../risk/risk-engine.js";
 import { VerificationEngine } from "../verifier/engine.js";
-import type { Verifier } from "../verifier/verifier.js";
+import type { VerifierSelector } from "../verifier/select.js";
 
 export interface AnalysisOutput {
   changeSet: ChangeSet;
@@ -20,7 +20,7 @@ export class CoreOrchestrator {
   constructor(
     private readonly analyzer: Analyzer,
     private readonly riskEngine: RiskEngine,
-    private readonly selectVerifiers: (changeSet: ChangeSet) => Verifier[],
+    private readonly selectVerifiers: VerifierSelector,
   ) {}
 
   async analyze(request: AnalysisRequest): Promise<ChangeSet> {
@@ -31,7 +31,7 @@ export class CoreOrchestrator {
     const changeSet = await this.analyze(request);
     const risk = this.riskEngine.assess(changeSet);
     const verification = await new VerificationEngine(
-      this.selectVerifiers(changeSet),
+      this.selectVerifiers(changeSet, risk),
     ).run({ repositoryPath: request.repositoryPath, changeSet }, risk);
 
     return { changeSet, risk, verification };

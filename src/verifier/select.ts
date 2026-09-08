@@ -1,9 +1,21 @@
-import type { ChangeSet } from "../core/types/index.js";
+import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { TypeCheckVerifier, isTypeScriptFile } from "./typecheck.js";
 import type { Verifier } from "./verifier.js";
 
-export function selectVerifiers(changeSet: ChangeSet): Verifier[] {
+export type VerifierSelector = (
+  changeSet: ChangeSet,
+  risk: RiskAssessment,
+) => Verifier[];
+
+// Risk-adaptive selection: risk only ever ADDS depth, never removes it.
+// A check that applies to a change at LOW risk still applies at HIGH risk.
+// Today only typecheck exists, so selection is language-driven and identical
+// across levels; future checks (lint, tests, security) branch on `risk` here.
+export function selectVerifiers(
+  changeSet: ChangeSet,
+  _risk: RiskAssessment,
+): Verifier[] {
   const verifiers: Verifier[] = [];
 
   const touchesTypeScript = changeSet.files.some((file) =>
