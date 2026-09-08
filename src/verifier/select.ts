@@ -1,7 +1,8 @@
 import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { EslintVerifier, isLintableFile } from "./eslint.js";
-import { RuffVerifier, isPythonFile } from "./ruff.js";
+import { PytestVerifier, isPythonFile } from "./pytest.js";
+import { RuffVerifier } from "./ruff.js";
 import { TypeCheckVerifier, isTypeScriptFile } from "./typecheck.js";
 import type { Verifier } from "./verifier.js";
 
@@ -41,6 +42,7 @@ export function selectVerifiers(
 
   if (touchesPython) {
     verifiers.push(new RuffVerifier());
+    verifiers.push(new PytestVerifier());
   }
 
   return verifiers;

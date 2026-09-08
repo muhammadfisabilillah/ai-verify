@@ -1093,7 +1093,7 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 
 ```text
 [x] Python lint (ruff)
-[ ] Python test runner (pytest)
+[x] Python test runner (pytest)
 [ ] Go
 [ ] Rust
 [ ] Java

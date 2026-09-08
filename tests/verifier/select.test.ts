@@ -72,13 +72,13 @@ describe("selectVerifiers", () => {
     ).toEqual([]);
   });
 
-  it("selects ruff for python changes", () => {
+  it("selects ruff and pytest for python changes", () => {
     const verifiers = selectVerifiers(
       changeSet([{ path: "README.md" }, { path: "main.py", language: "python" }]),
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["ruff"]);
+    expect(verifiers.map((v) => v.id)).toEqual(["ruff", "pytest"]);
   });
 
   it("never drops checks at higher risk (depth only adds)", () => {
