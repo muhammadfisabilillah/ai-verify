@@ -8,7 +8,7 @@
 
 Open-source, risk-adaptive verification infrastructure for AI-generated software.
 It analyzes what changed, assesses how risky it is, and runs only the checks
-that fit — then reports a clear `PASSED` / `FAILED` result. Terminal-first,
+that fit — then reports a clear `PASS` / `REVIEW` / `BLOCK` verdict. Terminal-first,
 zero-config, local-only.
 
 ## Contents
@@ -93,7 +93,7 @@ Factors:
 Verification (857ms)
   ✓ Type Check — passed
 Findings: 0
-Result: PASSED
+Result: PASS
 ```
 
 </details>
@@ -101,7 +101,9 @@ Result: PASSED
 * **Changes** — what the analyzer found in the working tree vs `HEAD`.
 * **Risk** — level + score + one line per factor (always with a reason).
 * **Verification** — one line per check that applied, then findings, then verdict.
-* **Exit code** — `0` on `PASSED`, `1` on `FAILED`, so CI pipelines fail correctly.
+* **Verdict** — `PASS` (clear), `REVIEW` (a check failed, a finding needs a human, or a risky change had no applicable verifier), `BLOCK` (a tool errored, a `critical` finding, or a `high` finding in `high`/`critical` risk). Risk alone never blocks — it selects verification depth.
+* **Machine-readable** — `ai-verify /path/to/repo --json` prints `{ changeSet, risk, verification, verdict }` for CI and AI agents. See `examples/` for samples. `ai-verify --help` lists all flags.
+* **Exit code** — `0` on `PASS`, `1` on `REVIEW`/`BLOCK`, so CI pipelines fail correctly.
 
 ## Risk levels
 
@@ -161,6 +163,7 @@ npm run build   # build
 * A check that does not apply is `skipped` with a reason — never a failure.
 * A missing tool is `skipped`, never downloaded or installed for you.
 * A crashed tool is `error`, not silently treated as passed.
+* A risky change with no applicable verifier is `REVIEW`, never a hollow `PASS`.
 * Risk factors always carry a human-readable reason.
 
 ## Roadmap
@@ -171,6 +174,7 @@ npm run build   # build
 * [x] Phase 1 — Change Detection (Git diff, languages, ChangeSet)
 * [x] Phase 2 — Risk Engine v0.1 (scoring, factors, levels)
 * [x] Phase 3 — Verification Engine v0.1 (type check, aggregated findings)
+* [x] Stabilisasi v0.2 — `--help/--version/--json`, risk-aware selection, `PASS / REVIEW / BLOCK`
 * [ ] Phase 4 — Multi-language (Python/Ruff first)
 * [ ] Phase 5 — Developer integrations (GitHub Action, pre-commit, `--json`)
 * [ ] Phase 6 — AI agent protocol (`PASS / REVIEW / BLOCK` loop)

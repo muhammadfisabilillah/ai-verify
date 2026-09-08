@@ -185,9 +185,9 @@ Status:
 * [x] Language detection
 * [x] ChangeSet generation
 * [x] Human-readable CLI report
-* [ ] Automated GitAnalyzer tests
+* [x] Automated GitAnalyzer tests
 
-Setelah Change Detection selesai dan stabil, development akan dilanjutkan ke **Risk Engine**.
+Phase 1 selesai dan stabil — development dilanjutkan ke **Risk Engine** (Phase 2, selesai).
 
 ---
 
@@ -274,12 +274,13 @@ ai-verify/
 │       └── language.test.ts
 │
 ├── docs/
+│   └── workflow.md
 ├── examples/
+│   ├── output-pass.json
+│   └── output-review.json
 │
 ├── .gitignore
 ├── README.md
-├── ROADMAP.md
-├── CONTRIBUTING.md
 ├── package.json
 └── tsconfig.json
 ```
@@ -575,9 +576,8 @@ clippy
 
 # Risk Engine
 
-Risk Engine merupakan tahap berikutnya setelah Change Detection stabil.
-
-Pertanyaan utama:
+Risk Engine v0.1 sudah diimplementasikan (`src/risk/`).
+Ia menjawab pertanyaan utama:
 
 > **"Seberapa berisiko perubahan ini?"**
 
@@ -823,8 +823,15 @@ Findings: 2
 HIGH   Potential SQL Injection
 MEDIUM Missing test coverage
 
-Result: FAILED
+Result: BLOCK
 ```
+
+Aturan verdict (`deriveVerdict` di `src/verifier/verdict.ts`):
+`BLOCK` untuk tool `error`, finding `critical`, atau finding `high`
+di risk `high`/`critical`; `REVIEW` untuk check `failed`, finding
+lainnya, atau perubahan berisiko tanpa verifier yang cocok;
+selain itu `PASS`. Risk sendiri tidak pernah memblokir — ia memilih
+kedalaman pemeriksaan.
 
 ---
 
@@ -1042,31 +1049,42 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 [x] Language detection
 [x] ChangeSet
 [x] CLI report
-[ ] GitAnalyzer tests
+[x] GitAnalyzer tests
+[x] Windows-safe line counting (Node fs, tanpa shell `wc`)
 ```
 
 ## Phase 2 — Risk Engine v0.1
 
 ```text
-[ ] Risk scoring
-[ ] Risk factors
-[ ] Risk levels
-[ ] File-based risk detection
-[ ] Change-size risk
-[ ] Security-sensitive paths
-[ ] Test-change correlation
+[x] Risk scoring
+[x] Risk factors
+[x] Risk levels
+[x] File-based risk detection
+[x] Change-size risk
+[x] Security-sensitive paths
+[x] Test-change correlation
 ```
 
 ## Phase 3 — Verification Engine
 
 ```text
-[ ] Verification interface
-[ ] Type checking
+[x] Verification interface
+[x] Type checking
 [ ] Linting
 [ ] Testing
 [ ] Basic security checks
-[ ] Finding aggregation
-[ ] Verification result
+[x] Finding aggregation
+[x] Verification result
+[x] PASS / REVIEW / BLOCK verdict
+```
+
+## Stabilisasi v0.2 — Selesai
+
+```text
+[x] CLI flags (--help, --version, --json)
+[x] Risk-aware verifier selection (risk hanya menambah depth)
+[x] Machine-readable JSON ({ changeSet, risk, verification, verdict })
+[x] Contoh output di examples/ dengan contract test
 ```
 
 ## Phase 4 — Multi-Language
@@ -1168,7 +1186,7 @@ Changes:
   modified  tests/auth.test.ts
 ```
 
-Pada tahap berikutnya output akan berkembang menjadi:
+Output verifikasi saat ini (dengan verdict):
 
 ```text
 AI Verify
@@ -1193,7 +1211,7 @@ Findings
 2 MEDIUM
 
 Result
-REVIEW REQUIRED
+BLOCK
 ```
 
 ---
@@ -1247,20 +1265,21 @@ Dengan demikian:
 
 # Status
 
-**Early Development — Phase 1**
+**Stabilisasi v0.2 — Selesai**
 
-AI Verify saat ini masih dalam tahap pembangunan fundamental architecture.
+Phase 1 (Change Detection), Phase 2 (Risk Engine v0.1), dan
+Phase 3 (Verification Engine v0.1) selesai, plus stabilisasi:
+CLI flags, risk-aware selection, verdict `PASS / REVIEW / BLOCK`,
+dan contoh output mesin.
 
-Prioritas terdekat:
+Prioritas berikutnya:
 
 ```text
-Complete GitAnalyzer tests
+Multi-language verification (Python/Ruff, ESLint)
         ↓
-Risk Engine v0.1
+Developer integrations (GitHub Action, pre-commit)
         ↓
-Verification Engine
-        ↓
-Multi-language verification
+AI agent protocol loop
 ```
 
 ---
@@ -1281,16 +1300,12 @@ Kontribusi yang nantinya dapat diterima antara lain:
 * tests,
 * performance improvements.
 
-Lihat:
-
-```text
-CONTRIBUTING.md
-```
-
-untuk contribution guidelines.
+Contribution guidelines menyusul di `README.md` — untuk saat ini:
+satu scope per commit, kontrak stabil, `npm run check && npm run test && npm run build`
+hijau sebelum push.
 
 ---
 
 # License
 
-License akan ditentukan pada tahap berikutnya.
+ISC — lihat `package.json`.

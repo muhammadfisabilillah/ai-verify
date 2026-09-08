@@ -1,0 +1,54 @@
+{
+  "changeSet": {
+    "files": [
+      {
+        "path": "src/payments/checkout.py",
+        "changeType": "added",
+        "additions": 120,
+        "deletions": 0,
+        "source": "unknown",
+        "language": "python"
+      }
+    ],
+    "totalAdditions": 120,
+    "totalDeletions": 0
+  },
+  "risk": {
+    "score": 42,
+    "level": "medium",
+    "factors": [
+      {
+        "name": "Payment change",
+        "score": 30,
+        "reason": "Touches payment or billing logic: src/payments/checkout.py"
+      },
+      {
+        "name": "No related tests",
+        "score": 12,
+        "reason": "Code changed without accompanying test changes"
+      }
+    ]
+  },
+  "verification": {
+    "checks": [],
+    "findings": [],
+    "risk": {
+      "score": 42,
+      "level": "medium",
+      "factors": [
+        {
+          "name": "Payment change",
+          "score": 30,
+          "reason": "Touches payment or billing logic: src/payments/checkout.py"
+        },
+        {
+          "name": "No related tests",
+          "score": 12,
+          "reason": "Code changed without accompanying test changes"
+        }
+      ]
+    },
+    "durationMs": 3
+  },
+  "verdict": "REVIEW"
+}

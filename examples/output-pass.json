@@ -1,0 +1,60 @@
+{
+  "changeSet": {
+    "files": [
+      {
+        "path": "src/auth/session.ts",
+        "changeType": "added",
+        "additions": 24,
+        "deletions": 0,
+        "source": "unknown",
+        "language": "typescript"
+      },
+      {
+        "path": "tests/auth.test.ts",
+        "changeType": "added",
+        "additions": 18,
+        "deletions": 0,
+        "source": "unknown",
+        "language": "typescript"
+      }
+    ],
+    "totalAdditions": 42,
+    "totalDeletions": 0
+  },
+  "risk": {
+    "score": 30,
+    "level": "medium",
+    "factors": [
+      {
+        "name": "Authentication change",
+        "score": 30,
+        "reason": "Touches authentication or authorization logic: src/auth/session.ts"
+      }
+    ]
+  },
+  "verification": {
+    "checks": [
+      {
+        "id": "typecheck",
+        "name": "Type Check",
+        "status": "passed",
+        "durationMs": 857,
+        "findings": []
+      }
+    ],
+    "findings": [],
+    "risk": {
+      "score": 30,
+      "level": "medium",
+      "factors": [
+        {
+          "name": "Authentication change",
+          "score": 30,
+          "reason": "Touches authentication or authorization logic: src/auth/session.ts"
+        }
+      ]
+    },
+    "durationMs": 857
+  },
+  "verdict": "PASS"
+}
