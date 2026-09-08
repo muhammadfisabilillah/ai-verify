@@ -173,7 +173,7 @@ npm run build   # build
 
 * [x] Phase 1 — Change Detection (Git diff, languages, ChangeSet)
 * [x] Phase 2 — Risk Engine v0.1 (scoring, factors, levels)
-* [x] Phase 3 — Verification Engine v0.1 (type check, aggregated findings)
+* [x] Phase 3 — Verification Engine v0.1 (type check, lint, aggregated findings)
 * [x] Stabilisasi v0.2 — `--help/--version/--json`, risk-aware selection, `PASS / REVIEW / BLOCK`
 * [ ] Phase 4 — Multi-language (Python/Ruff first)
 * [ ] Phase 5 — Developer integrations (GitHub Action, pre-commit, `--json`)

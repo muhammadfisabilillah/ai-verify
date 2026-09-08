@@ -1,5 +1,6 @@
 import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
+import { EslintVerifier, isLintableFile } from "./eslint.js";
 import { TypeCheckVerifier, isTypeScriptFile } from "./typecheck.js";
 import type { Verifier } from "./verifier.js";
 
@@ -10,8 +11,7 @@ export type VerifierSelector = (
 
 // Risk-adaptive selection: risk only ever ADDS depth, never removes it.
 // A check that applies to a change at LOW risk still applies at HIGH risk.
-// Today only typecheck exists, so selection is language-driven and identical
-// across levels; future checks (lint, tests, security) branch on `risk` here.
+// Future checks (tests, security) branch on `risk` here.
 export function selectVerifiers(
   changeSet: ChangeSet,
   _risk: RiskAssessment,
@@ -24,6 +24,14 @@ export function selectVerifiers(
 
   if (touchesTypeScript) {
     verifiers.push(new TypeCheckVerifier());
+  }
+
+  const touchesLintable = changeSet.files.some((file) =>
+    isLintableFile(file.path, file.language),
+  );
+
+  if (touchesLintable) {
+    verifiers.push(new EslintVerifier());
   }
 
   return verifiers;

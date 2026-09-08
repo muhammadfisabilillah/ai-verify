@@ -1070,7 +1070,7 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 ```text
 [x] Verification interface
 [x] Type checking
-[ ] Linting
+[x] Linting (ESLint)
 [ ] Testing
 [ ] Basic security checks
 [x] Finding aggregation

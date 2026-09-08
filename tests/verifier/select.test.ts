@@ -33,22 +33,31 @@ function risk(level: RiskAssessment["level"], score: number): RiskAssessment {
 }
 
 describe("selectVerifiers", () => {
-  it("selects typecheck when TypeScript files changed", () => {
+  it("selects typecheck and lint when TypeScript files changed", () => {
     const verifiers = selectVerifiers(
       changeSet([{ path: "src/app.ts", language: "typescript" }]),
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["typecheck"]);
+    expect(verifiers.map((v) => v.id)).toEqual(["typecheck", "lint"]);
   });
 
-  it("selects typecheck by extension even without language label", () => {
+  it("selects typecheck and lint by extension even without language label", () => {
     const verifiers = selectVerifiers(
       changeSet([{ path: "src/app.tsx" }]),
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["typecheck"]);
+    expect(verifiers.map((v) => v.id)).toEqual(["typecheck", "lint"]);
+  });
+
+  it("selects only lint for plain JavaScript", () => {
+    const verifiers = selectVerifiers(
+      changeSet([{ path: "src/app.js", language: "javascript" }]),
+      risk("low", 10),
+    );
+
+    expect(verifiers.map((v) => v.id)).toEqual(["lint"]);
   });
 
   it("selects nothing for docs-only changes", () => {
@@ -63,7 +72,7 @@ describe("selectVerifiers", () => {
     ).toEqual([]);
   });
 
-  it("selects typecheck for mixed changes", () => {
+  it("selects nothing for python-only changes", () => {
     const verifiers = selectVerifiers(
       changeSet([{ path: "README.md" }, { path: "main.py", language: "python" }]),
       risk("low", 10),
@@ -86,6 +95,7 @@ describe("selectVerifiers", () => {
     for (const r of levels) {
       expect(selectVerifiers(changes, r).map((v) => v.id)).toEqual([
         "typecheck",
+        "lint",
       ]);
     }
   });
