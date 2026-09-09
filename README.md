@@ -166,6 +166,11 @@ also exposed for conditional follow-ups:
 | --------- | ---------------------------------------------------------------------------- |
 | `verdict` | `PASS`, `REVIEW`, or `BLOCK` (`UNKNOWN` fails the job — never a silent pass) |
 
+> Note: `npx` prefers the current project when its name and version already
+> satisfy the package spec, so invoking the action with the working directory
+> inside this repository's own checkout at a matching version cannot resolve
+> the binary — run it from the consumer repository (the normal case).
+
 ## From source
 
 ```bash
