@@ -33,9 +33,9 @@ function changeSet(
 }
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(testDir, "../..");
 const passDir = path.resolve(testDir, "../fixtures/eslint-pass");
 const failDir = path.resolve(testDir, "../fixtures/eslint-fail");
+const noConfigDir = path.resolve(testDir, "../fixtures/eslint-noconfig");
 
 const tempDirs: string[] = [];
 
@@ -166,10 +166,11 @@ describe("EslintVerifier", () => {
   );
 
   it("skips when the repository has no eslint configuration", async () => {
-    // This repo has a local eslint but no config file of its own,
-    // so the check is honestly not applicable instead of an error.
+    // Self-contained fixture with no config file and no eslintConfig key,
+    // so the check is honestly not applicable instead of an error —
+    // independent of whatever config the ai-verify repo itself carries.
     const verifier = new EslintVerifier();
-    const check = await verifier.run(changeSet([jsFile("x.js")], repoRoot));
+    const check = await verifier.run(changeSet([jsFile("x.js")], noConfigDir));
 
     expect(check.status).toBe("skipped");
     expect(check.findings).toEqual([]);
