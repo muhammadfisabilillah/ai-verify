@@ -77,7 +77,7 @@ npm prefix at a directory you own.
 <summary><b>Click to expand a full annotated example</b></summary>
 
 ```text
-AI Verify v0.2.0 — AI can generate code. AI Verify helps verify it.
+AI Verify v0.2.1 — AI can generate code. AI Verify helps verify it.
 ------------------------------
 Files changed : 2
 Additions     : +34

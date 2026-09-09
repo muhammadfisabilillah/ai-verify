@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -143,7 +144,25 @@ export async function main(argv: string[] = process.argv): Promise<number> {
 
 const entryPath = fileURLToPath(import.meta.url);
 
-if (process.argv[1] === entryPath) {
+// npm .bin links, npx, and global installs invoke the CLI through a symlink,
+// so argv[1] never equals the real module path. Compare canonical paths or
+// every symlinked install exits silently without running anything.
+export function isEntryModule(
+  invokedPath: string | undefined,
+  metaUrl: string,
+): boolean {
+  if (invokedPath === undefined) {
+    return false;
+  }
+
+  try {
+    return realpathSync(invokedPath) === fileURLToPath(metaUrl);
+  } catch {
+    return false;
+  }
+}
+
+if (isEntryModule(process.argv[1], import.meta.url)) {
   main().then(
     (code) => {
       process.exitCode = code;
