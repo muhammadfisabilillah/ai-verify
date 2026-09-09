@@ -165,11 +165,11 @@ conditional follow-ups:
 Trying it out or running it occasionally? The one-liner in
 [Quick start](#quick-start) is all you need — nothing gets installed.
 
-| If you want to…                        | Do this                                          |
-| -------------------------------------- | ------------------------------------------------ |
-| Use it everywhere via `ai-verify`      | `npm install -g @fisaabil_/ai-verify`            |
+| If you want to…                        | Do this                                                       |
+| -------------------------------------- | ------------------------------------------------------------- |
+| Use it everywhere via `ai-verify`      | `npm install -g @fisaabil_/ai-verify`                         |
 | Lock one version for the whole team    | `npm install -D @fisaabil_/ai-verify`, then `npx ai-verify .` |
-| Check every pull request automatically | See [GitHub Action](#github-action)              |
+| Check every pull request automatically | See [GitHub Action](#github-action)                           |
 
 Confirm it works:
 
