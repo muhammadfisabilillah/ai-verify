@@ -1,0 +1,50 @@
+name: "AI Verify"
+description: "Risk-adaptive verification for AI-generated code (PASS / REVIEW / BLOCK)"
+branding:
+  icon: "shield"
+  color: "green"
+
+inputs:
+  version:
+    description: "Published @fisaabil_/ai-verify version to run"
+    required: false
+    default: "latest"
+  path:
+    description: "Repository path to verify"
+    required: false
+    default: "."
+  args:
+    description: 'Extra CLI flags, e.g. "--no-history"'
+    required: false
+    default: ""
+
+outputs:
+  verdict:
+    description: "PASS, REVIEW, or BLOCK (UNKNOWN when the report is unreadable)"
+    value: ${{ steps.verify.outputs.verdict }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: verify
+      shell: bash
+      env:
+        AI_VERIFY_PACKAGE: "@fisaabil_/ai-verify@${{ inputs.version }}"
+        AI_VERIFY_PATH: ${{ inputs.path }}
+        AI_VERIFY_ARGS: ${{ inputs.args }}
+      run: |
+        set -uo pipefail
+        out="$RUNNER_TEMP/ai-verify.json"
+        code=0
+        # Word-splitting of AI_VERIFY_ARGS is intentional: it carries extra flags.
+        # shellcheck disable=SC2086
+        npx --yes "$AI_VERIFY_PACKAGE" "$AI_VERIFY_PATH" --json $AI_VERIFY_ARGS > "$out" || code=$?
+        export AI_VERIFY_OUT="$out"
+        verdict=$(node -e "const fs=require('fs');try{console.log(JSON.parse(fs.readFileSync(process.env.AI_VERIFY_OUT,'utf8')).verdict)}catch{console.log('UNKNOWN')}")
+        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+        cat "$out"
+        if [ "$verdict" = "UNKNOWN" ]; then
+          echo "AI Verify produced no readable report — failing instead of passing silently."
+          exit 1
+        fi
+        exit "$code"

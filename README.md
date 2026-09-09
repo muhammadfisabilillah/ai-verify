@@ -13,18 +13,19 @@ zero-config, local-only.
 
 ## Contents
 
-* [Try it in 60 seconds](#try-it-in-60-seconds)
-* [How it works](#how-it-works)
-* [Install](#install)
-* [What the output means](#what-the-output-means)
-* [Risk levels](#risk-levels)
-* [Check statuses](#check-statuses)
-* [Requirements](#requirements)
-* [From source](#from-source)
-* [Quality checks](#quality-checks)
-* [Honesty rules](#honesty-rules)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
+- [Try it in 60 seconds](#try-it-in-60-seconds)
+- [How it works](#how-it-works)
+- [Install](#install)
+- [What the output means](#what-the-output-means)
+- [Risk levels](#risk-levels)
+- [Check statuses](#check-statuses)
+- [Requirements](#requirements)
+- [Use in CI](#use-in-ci)
+- [From source](#from-source)
+- [Quality checks](#quality-checks)
+- [Honesty rules](#honesty-rules)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
 
 ## Try it in 60 seconds
 
@@ -98,42 +99,72 @@ Result: PASS
 
 </details>
 
-* **Changes** — what the analyzer found in the working tree vs `HEAD`.
-* **Risk** — level + score + one line per factor (always with a reason).
-* **Verification** — one line per check that applied, then findings, then verdict.
-* **Verdict** — `PASS` (clear), `REVIEW` (a check failed, a finding needs a human, or a risky change had no applicable verifier), `BLOCK` (a tool errored, a `critical` finding, or a `high` finding in `high`/`critical` risk). Risk alone never blocks — it selects verification depth.
-* **Machine-readable** — `ai-verify /path/to/repo --json` prints `{ changeSet, risk, verification, verdict }` for CI and AI agents. See `examples/` for samples. `ai-verify --help` lists all flags.
-* **Run history** — every run appends a one-line summary to `~/.cache/ai-verify/runs.jsonl` (override with `AI_VERIFY_HISTORY_FILE`). No file contents are recorded. Use `--no-history` to opt out.
-* **Exit code** — `0` on `PASS`, `1` on `REVIEW`/`BLOCK`, so CI pipelines fail correctly.
+- **Changes** — what the analyzer found in the working tree vs `HEAD`.
+- **Risk** — level + score + one line per factor (always with a reason).
+- **Verification** — one line per check that applied, then findings, then verdict.
+- **Verdict** — `PASS` (clear), `REVIEW` (a check failed, a finding needs a human, or a risky change had no applicable verifier), `BLOCK` (a tool errored, a `critical` finding, or a `high` finding in `high`/`critical` risk). Risk alone never blocks — it selects verification depth.
+- **Machine-readable** — `ai-verify /path/to/repo --json` prints `{ changeSet, risk, verification, verdict }` for CI and AI agents. See `examples/` for samples. `ai-verify --help` lists all flags.
+- **Run history** — every run appends a one-line summary to `~/.cache/ai-verify/runs.jsonl` (override with `AI_VERIFY_HISTORY_FILE`). No file contents are recorded. Use `--no-history` to opt out.
+- **Exit code** — `0` on `PASS`, `1` on `REVIEW`/`BLOCK`, so CI pipelines fail correctly.
 
 ## Risk levels
 
-| Level | Score | Typical trigger |
-|---|---|---|
-| `NONE` | 0 | Docs-only changes |
-| `LOW` | 1–29 | Config, small changes with tests |
-| `MEDIUM` | 30–59 | Auth/DB touch, or code without tests |
-| `HIGH` | 60–89 | Payment/secrets/security-sensitive code |
-| `CRITICAL` | 90–100 | Combined high-risk factors at scale |
+| Level      | Score  | Typical trigger                         |
+| ---------- | ------ | --------------------------------------- |
+| `NONE`     | 0      | Docs-only changes                       |
+| `LOW`      | 1–29   | Config, small changes with tests        |
+| `MEDIUM`   | 30–59  | Auth/DB touch, or code without tests    |
+| `HIGH`     | 60–89  | Payment/secrets/security-sensitive code |
+| `CRITICAL` | 90–100 | Combined high-risk factors at scale     |
 
 ## Check statuses
 
-| Status | Meaning |
-|---|---|
-| `passed` ✓ | Tool ran, no findings |
-| `failed` ✗ | Tool ran, findings reported |
+| Status      | Meaning                                                                  |
+| ----------- | ------------------------------------------------------------------------ |
+| `passed` ✓  | Tool ran, no findings                                                    |
+| `failed` ✗  | Tool ran, findings reported                                              |
 | `skipped` - | Not applicable (e.g. no TS files) or tool missing — always with a reason |
-| `error` ! | Tool crashed or repo unreadable — fails the run, never silent |
+| `error` !   | Tool crashed or repo unreadable — fails the run, never silent            |
 
 A missing tool is **skipped**, never downloaded or installed for you.
 
 ## Requirements
 
-* Node.js `>= 18`
-* Git (target must be a Git repository; works with or without prior commits)
+- Node.js `>= 18`
+- Git (target must be a Git repository; works with or without prior commits)
 
 Check tools (like `tsc`) are used from the target repository itself when
 available — never fetched from the network at run time.
+
+## Use in CI
+
+GitHub-hosted runners already provide Node.js `>= 18`, so no setup step is
+needed — check out first, then verify:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: muhammadfisabilillah/ai-verify@v0.1.0
+```
+
+The step exits non-zero on `REVIEW`/`BLOCK`, failing the job. The verdict is
+also exposed for conditional follow-ups:
+
+```yaml
+- id: verify
+  uses: muhammadfisabilillah/ai-verify@v0.1.0
+- if: steps.verify.outputs.verdict == 'BLOCK'
+  run: echo "Needs a human — see the findings above."
+```
+
+| Input     | Default   | Meaning                                             |
+| --------- | --------- | --------------------------------------------------- |
+| `version` | `latest`  | Published package version to run (pin it for teams) |
+| `path`    | `.`       | Repository path to verify                           |
+| `args`    | _(empty)_ | Extra CLI flags, e.g. `--no-history`                |
+
+| Output    | Meaning                                                                      |
+| --------- | ---------------------------------------------------------------------------- |
+| `verdict` | `PASS`, `REVIEW`, or `BLOCK` (`UNKNOWN` fails the job — never a silent pass) |
 
 ## From source
 
@@ -161,24 +192,24 @@ npm run build   # build
 
 ## Honesty rules
 
-* A check that does not apply is `skipped` with a reason — never a failure.
-* A missing tool is `skipped`, never downloaded or installed for you.
-* A crashed tool is `error`, not silently treated as passed.
-* A risky change with no applicable verifier is `REVIEW`, never a hollow `PASS`.
-* Risk factors always carry a human-readable reason.
+- A check that does not apply is `skipped` with a reason — never a failure.
+- A missing tool is `skipped`, never downloaded or installed for you.
+- A crashed tool is `error`, not silently treated as passed.
+- A risky change with no applicable verifier is `REVIEW`, never a hollow `PASS`.
+- Risk factors always carry a human-readable reason.
 
 ## Roadmap
 
 <details>
 <summary><b>Where this is going</b></summary>
 
-* [x] Phase 1 — Change Detection (Git diff, languages, ChangeSet)
-* [x] Phase 2 — Risk Engine v0.1 (scoring, factors, levels)
-* [x] Phase 3 — Verification Engine v0.1 (type check, lint, tests, secret scan, aggregated findings)
-* [x] Stabilisasi v0.2 — `--help/--version/--json`, risk-aware selection, `PASS / REVIEW / BLOCK`
-* [x] Phase 4 — Multi-language (Ruff, pytest done, more runners pending)
-* [ ] Phase 5 — Developer integrations (GitHub Action, pre-commit, `--json`)
-* [ ] Phase 6 — AI agent protocol (`PASS / REVIEW / BLOCK` loop)
+- [x] Phase 1 — Change Detection (Git diff, languages, ChangeSet)
+- [x] Phase 2 — Risk Engine v0.1 (scoring, factors, levels)
+- [x] Phase 3 — Verification Engine v0.1 (type check, lint, tests, secret scan, aggregated findings)
+- [x] Stabilisasi v0.2 — `--help/--version/--json`, risk-aware selection, `PASS / REVIEW / BLOCK`
+- [x] Phase 4 — Multi-language (Ruff, pytest done, more runners pending)
+- [ ] Phase 5 — Developer integrations (GitHub Action done, pre-commit, GitLab CI, IDE pending)
+- [ ] Phase 6 — AI agent protocol (`PASS / REVIEW / BLOCK` loop)
 
 </details>
 
