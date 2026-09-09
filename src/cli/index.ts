@@ -7,10 +7,7 @@ import { CoreOrchestrator } from "../core/orchestrator.js";
 import { GitAnalyzer } from "../analyzer/git-analyzer.js";
 import { RiskEngineV01 } from "../risk/risk-engine.js";
 import { deriveVerdict, selectVerifiers } from "../verifier/index.js";
-import {
-  appendHistory,
-  buildHistoryEntry,
-} from "../history/store.js";
+import { appendHistory, buildHistoryEntry } from "../history/store.js";
 import {
   hasFailed,
   printBanner,

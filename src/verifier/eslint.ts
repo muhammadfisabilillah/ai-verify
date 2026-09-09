@@ -57,8 +57,7 @@ function toFinding(
   index: number,
 ): Finding {
   const relative =
-    path.isAbsolute(filePath) &&
-    filePath.startsWith(repositoryPath + path.sep)
+    path.isAbsolute(filePath) && filePath.startsWith(repositoryPath + path.sep)
       ? path.relative(repositoryPath, filePath)
       : filePath;
 

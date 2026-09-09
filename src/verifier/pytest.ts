@@ -87,9 +87,7 @@ function toFinding(
   const filePath = testCase.classname
     ? path.join(...testCase.classname.split("."))
     : "unknown";
-  const relative = path.isAbsolute(filePath)
-    ? filePath
-    : filePath;
+  const relative = path.isAbsolute(filePath) ? filePath : filePath;
 
   const finding: Finding = {
     id: `pytest-${index + 1}`,
@@ -168,8 +166,7 @@ export class PytestVerifier implements Verifier {
 
     const pythonFiles = context.changeSet.files.filter(
       (file) =>
-        file.changeType !== "deleted" &&
-        isPythonFile(file.path, file.language),
+        file.changeType !== "deleted" && isPythonFile(file.path, file.language),
     );
 
     if (pythonFiles.length === 0) {
@@ -204,14 +201,7 @@ export class PytestVerifier implements Verifier {
     try {
       await execFileAsync(
         "python3",
-        [
-          "-m",
-          "pytest",
-          "--junit-xml",
-          xmlFile,
-          "--tb=short",
-          "-q",
-        ],
+        ["-m", "pytest", "--junit-xml", xmlFile, "--tb=short", "-q"],
         {
           cwd: context.repositoryPath,
           timeout: 180_000,

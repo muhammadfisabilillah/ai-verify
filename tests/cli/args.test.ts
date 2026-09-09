@@ -69,11 +69,15 @@ describe("parseArgs", () => {
   });
 
   it("takes path positionally and flags anywhere", () => {
-    expect(parseArgs(["node", "ai-verify", "/tmp/repo", "--json"])).toMatchObject({
+    expect(
+      parseArgs(["node", "ai-verify", "/tmp/repo", "--json"]),
+    ).toMatchObject({
       repositoryPath: "/tmp/repo",
       json: true,
     });
-    expect(parseArgs(["node", "ai-verify", "--json", "/tmp/repo"])).toMatchObject({
+    expect(
+      parseArgs(["node", "ai-verify", "--json", "/tmp/repo"]),
+    ).toMatchObject({
       repositoryPath: "/tmp/repo",
       json: true,
     });
@@ -91,7 +95,9 @@ describe("parseArgs", () => {
   });
 
   it("throws on unknown option", () => {
-    expect(() => parseArgs(["node", "ai-verify", "--yaml"])).toThrow(/Unknown option/);
+    expect(() => parseArgs(["node", "ai-verify", "--yaml"])).toThrow(
+      /Unknown option/,
+    );
   });
 });
 

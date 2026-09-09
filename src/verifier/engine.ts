@@ -66,8 +66,7 @@ export class VerificationEngine {
 
       return await Promise.race([verifier.run(context), timeout]);
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : String(error);
 
       return {
         id: verifier.id,

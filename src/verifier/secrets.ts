@@ -40,7 +40,8 @@ const SECRET_RULES: SecretRule[] = [
   {
     ruleId: "secret-github-token",
     title: "Possible GitHub token",
-    pattern: /\bghp_[0-9A-Za-z]{10,}|\bgho_[0-9A-Za-z]{10,}|\bgithub_pat_[0-9A-Za-z_]{10,}/,
+    pattern:
+      /\bghp_[0-9A-Za-z]{10,}|\bgho_[0-9A-Za-z]{10,}|\bgithub_pat_[0-9A-Za-z_]{10,}/,
     severity: "critical",
   },
   {

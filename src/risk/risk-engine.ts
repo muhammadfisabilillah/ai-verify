@@ -1,7 +1,4 @@
-import type {
-  ChangeSet,
-  RiskAssessment,
-} from "../core/types/index.js";
+import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { scoreToLevel } from "./levels.js";
 import { collectRiskFactors } from "./rules.js";

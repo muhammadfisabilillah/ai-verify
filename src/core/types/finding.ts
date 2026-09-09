@@ -1,9 +1,4 @@
-export type Severity =
-  | "info"
-  | "low"
-  | "medium"
-  | "high"
-  | "critical";
+export type Severity = "info" | "low" | "medium" | "high" | "critical";
 
 export type FindingCategory =
   | "security"

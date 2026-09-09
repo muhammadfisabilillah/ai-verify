@@ -63,35 +63,31 @@ describe("run exit code", () => {
     await expect(run(repo)).resolves.toBe(0);
   });
 
-  it(
-    "returns 1 when verification fails",
-    async () => {
-      isolateHistory();
-      const repo = await initRepo();
-      writeFileSync(
-        path.join(repo, "tsconfig.json"),
-        JSON.stringify({
-          compilerOptions: { strict: true, noEmit: true, skipLibCheck: true },
-          include: ["*.ts"],
-        }),
-      );
-      writeFileSync(path.join(repo, "bad.ts"), "export const x = 1;\n");
-      await git(repo, ["add", "-A"]);
-      await git(repo, ["commit", "-qm", "init"]);
-      // Link this repo's node_modules so the temp repo has a local tsc
-      // without touching the network.
-      symlinkSync(
-        path.join(repoRoot, "node_modules"),
-        path.join(repo, "node_modules"),
-      );
-      writeFileSync(
-        path.join(repo, "bad.ts"),
-        'export const answer: number = "bukan angka";\n',
-      );
-      silenceOutput();
+  it("returns 1 when verification fails", async () => {
+    isolateHistory();
+    const repo = await initRepo();
+    writeFileSync(
+      path.join(repo, "tsconfig.json"),
+      JSON.stringify({
+        compilerOptions: { strict: true, noEmit: true, skipLibCheck: true },
+        include: ["*.ts"],
+      }),
+    );
+    writeFileSync(path.join(repo, "bad.ts"), "export const x = 1;\n");
+    await git(repo, ["add", "-A"]);
+    await git(repo, ["commit", "-qm", "init"]);
+    // Link this repo's node_modules so the temp repo has a local tsc
+    // without touching the network.
+    symlinkSync(
+      path.join(repoRoot, "node_modules"),
+      path.join(repo, "node_modules"),
+    );
+    writeFileSync(
+      path.join(repo, "bad.ts"),
+      'export const answer: number = "bukan angka";\n',
+    );
+    silenceOutput();
 
-      await expect(run(repo)).resolves.toBe(1);
-    },
-    90_000,
-  );
+    await expect(run(repo)).resolves.toBe(1);
+  }, 90_000);
 });

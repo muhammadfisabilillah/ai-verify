@@ -5,9 +5,11 @@ import { hasFailed, printVerificationReport } from "../../src/cli/report.js";
 
 function captureOutput(fn: () => void): string[] {
   const lines: string[] = [];
-  const spy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
-    lines.push(args.join(" "));
-  });
+  const spy = vi
+    .spyOn(console, "log")
+    .mockImplementation((...args: unknown[]) => {
+      lines.push(args.join(" "));
+    });
 
   try {
     fn();
@@ -46,7 +48,8 @@ describe("printVerificationReport", () => {
           status: "skipped",
           durationMs: 1,
           findings: [],
-          reason: "TypeScript compiler (tsc) is not available in this repository.",
+          reason:
+            "TypeScript compiler (tsc) is not available in this repository.",
         },
       ],
       findings: [],
@@ -57,17 +60,19 @@ describe("printVerificationReport", () => {
     const lines = captureOutput(() => printVerificationReport(result));
 
     expect(
-      lines.some((line) => line.includes("- Type Check — skipped (TypeScript compiler")),
+      lines.some((line) =>
+        line.includes("- Type Check — skipped (TypeScript compiler"),
+      ),
     ).toBe(true);
   });
 });
 
 describe("hasFailed", () => {
-  function resultWith(status: "passed" | "failed" | "skipped" | "error"): VerificationResult {
+  function resultWith(
+    status: "passed" | "failed" | "skipped" | "error",
+  ): VerificationResult {
     return {
-      checks: [
-        { id: "c", name: "C", status, durationMs: 0, findings: [] },
-      ],
+      checks: [{ id: "c", name: "C", status, durationMs: 0, findings: [] }],
       findings: [],
       risk: { score: 0, level: "none", factors: [] },
       durationMs: 0,
@@ -78,13 +83,21 @@ describe("hasFailed", () => {
     expect(hasFailed(resultWith(status))).toBe(true);
   });
 
-  it.each(["passed", "skipped"] as const)("is false when a check %s", (status) => {
-    expect(hasFailed(resultWith(status))).toBe(false);
-  });
+  it.each(["passed", "skipped"] as const)(
+    "is false when a check %s",
+    (status) => {
+      expect(hasFailed(resultWith(status))).toBe(false);
+    },
+  );
 
   it("is false when no checks ran", () => {
     expect(
-      hasFailed({ checks: [], findings: [], risk: { score: 0, level: "none", factors: [] }, durationMs: 0 }),
+      hasFailed({
+        checks: [],
+        findings: [],
+        risk: { score: 0, level: "none", factors: [] },
+        durationMs: 0,
+      }),
     ).toBe(false);
   });
 });

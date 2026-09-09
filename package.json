@@ -10,10 +10,12 @@
   "scripts": {
     "test": "vitest run",
     "check": "tsc --noEmit",
+    "format": "prettier --write src tests",
+    "format:check": "prettier --check src tests",
     "build": "tsc",
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/cli/index.js",
-    "prepublishOnly": "npm run check && npm run test && npm run build"
+    "prepublishOnly": "npm run check && npm run format:check && npm run test && npm run build"
   },
   "keywords": [
     "ai",

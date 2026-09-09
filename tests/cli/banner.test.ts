@@ -5,9 +5,11 @@ import { getVersion } from "../../src/cli/version.js";
 
 function captureOutput(fn: () => void): string[] {
   const lines: string[] = [];
-  const spy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
-    lines.push(args.join(" "));
-  });
+  const spy = vi
+    .spyOn(console, "log")
+    .mockImplementation((...args: unknown[]) => {
+      lines.push(args.join(" "));
+    });
 
   try {
     fn();
@@ -28,7 +30,9 @@ describe("welcome banner", () => {
 
     expect(
       lines.some((line) =>
-        line.includes("AI Verify v0.1.0 — AI can generate code. AI Verify helps verify it."),
+        line.includes(
+          "AI Verify v0.1.0 — AI can generate code. AI Verify helps verify it.",
+        ),
       ),
     ).toBe(true);
   });

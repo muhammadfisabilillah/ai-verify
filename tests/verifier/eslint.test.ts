@@ -93,49 +93,41 @@ describe("EslintVerifier", () => {
     expect(check.findings).toEqual([]);
   });
 
-  it(
-    "passes on a clean JavaScript project",
-    async () => {
-      const verifier = new EslintVerifier();
-      const check = await verifier.run(changeSet([jsFile("ok.js")], passDir));
+  it("passes on a clean JavaScript project", async () => {
+    const verifier = new EslintVerifier();
+    const check = await verifier.run(changeSet([jsFile("ok.js")], passDir));
 
-      expect(check.status).toBe("passed");
-      expect(check.findings).toEqual([]);
-    },
-    60_000,
-  );
+    expect(check.status).toBe("passed");
+    expect(check.findings).toEqual([]);
+  }, 60_000);
 
-  it(
-    "fails with parsed findings on lint errors",
-    async () => {
-      const verifier = new EslintVerifier();
-      const check = await verifier.run(changeSet([jsFile("bad.js")], failDir));
+  it("fails with parsed findings on lint errors", async () => {
+    const verifier = new EslintVerifier();
+    const check = await verifier.run(changeSet([jsFile("bad.js")], failDir));
 
-      expect(check.status).toBe("failed");
-      expect(check.findings).toHaveLength(2);
-      expect(check.findings).toContainEqual(
-        expect.objectContaining({
-          source: "lint",
-          severity: "medium",
-          category: "quality",
-          ruleId: "no-unused-vars",
-          file: "bad.js",
-          line: 1,
-        }),
-      );
-      expect(check.findings).toContainEqual(
-        expect.objectContaining({
-          source: "lint",
-          severity: "medium",
-          category: "quality",
-          ruleId: "no-undef",
-          file: "bad.js",
-          line: 2,
-        }),
-      );
-    },
-    60_000,
-  );
+    expect(check.status).toBe("failed");
+    expect(check.findings).toHaveLength(2);
+    expect(check.findings).toContainEqual(
+      expect.objectContaining({
+        source: "lint",
+        severity: "medium",
+        category: "quality",
+        ruleId: "no-unused-vars",
+        file: "bad.js",
+        line: 1,
+      }),
+    );
+    expect(check.findings).toContainEqual(
+      expect.objectContaining({
+        source: "lint",
+        severity: "medium",
+        category: "quality",
+        ruleId: "no-undef",
+        file: "bad.js",
+        line: 2,
+      }),
+    );
+  }, 60_000);
 
   it("errors when the repository path is unusable", async () => {
     const verifier = new EslintVerifier();
@@ -147,23 +139,19 @@ describe("EslintVerifier", () => {
     expect(check.reason).toMatch(/cannot access/i);
   });
 
-  it(
-    "skips when eslint is not available in the target repository",
-    async () => {
-      // A bare temp dir outside this repo tree has no local eslint,
-      // so `npx --no-install eslint` must fail without touching the network.
-      const bare = mkdtempSync(path.join(tmpdir(), "ai-verify-no-eslint-"));
-      tempDirs.push(bare);
+  it("skips when eslint is not available in the target repository", async () => {
+    // A bare temp dir outside this repo tree has no local eslint,
+    // so `npx --no-install eslint` must fail without touching the network.
+    const bare = mkdtempSync(path.join(tmpdir(), "ai-verify-no-eslint-"));
+    tempDirs.push(bare);
 
-      const verifier = new EslintVerifier();
-      const check = await verifier.run(changeSet([jsFile("app.js")], bare));
+    const verifier = new EslintVerifier();
+    const check = await verifier.run(changeSet([jsFile("app.js")], bare));
 
-      expect(check.status).toBe("skipped");
-      expect(check.findings).toEqual([]);
-      expect(check.reason).toMatch(/not available/i);
-    },
-    60_000,
-  );
+    expect(check.status).toBe("skipped");
+    expect(check.findings).toEqual([]);
+    expect(check.reason).toMatch(/not available/i);
+  }, 60_000);
 
   it("skips when the repository has no eslint configuration", async () => {
     // Self-contained fixture with no config file and no eslintConfig key,

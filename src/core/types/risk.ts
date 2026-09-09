@@ -1,9 +1,4 @@
-export type RiskLevel =
-  | "none"
-  | "low"
-  | "medium"
-  | "high"
-  | "critical";
+export type RiskLevel = "none" | "low" | "medium" | "high" | "critical";
 
 export interface RiskFactor {
   name: string;

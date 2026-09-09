@@ -51,7 +51,10 @@ describe("GitAnalyzer", () => {
     const analyzer = new GitAnalyzer();
 
     await expect(
-      analyzer.analyze({ repositoryPath: dir, includeUncommittedChanges: true }),
+      analyzer.analyze({
+        repositoryPath: dir,
+        includeUncommittedChanges: true,
+      }),
     ).rejects.toThrow(/not a Git repository/);
   });
 
@@ -151,7 +154,9 @@ describe("GitAnalyzer", () => {
       includeUncommittedChanges: true,
     });
 
-    expect(changeSet.files.find((f) => f.path === "no-newline.txt")).toMatchObject({
+    expect(
+      changeSet.files.find((f) => f.path === "no-newline.txt"),
+    ).toMatchObject({
       changeType: "added",
       additions: 2,
       deletions: 0,
@@ -282,10 +287,18 @@ describe("GitAnalyzer", () => {
 
     expect(changeSet.files).toHaveLength(2);
     expect(changeSet.files).toContainEqual(
-      expect.objectContaining({ path: "staged.ts", changeType: "added", additions: 2 }),
+      expect.objectContaining({
+        path: "staged.ts",
+        changeType: "added",
+        additions: 2,
+      }),
     );
     expect(changeSet.files).toContainEqual(
-      expect.objectContaining({ path: "untracked.py", changeType: "added", additions: 3 }),
+      expect.objectContaining({
+        path: "untracked.py",
+        changeType: "added",
+        additions: 3,
+      }),
     );
   });
 

@@ -168,10 +168,7 @@ describe("VitestVerifier", () => {
   it("errors when the repository path is unusable", async () => {
     const verifier = new VitestVerifier();
     const check = await verifier.run(
-      changeSet(
-        [jsFile("x.test.ts")],
-        "/tmp/ai-verify-does-not-exist-xyz",
-      ),
+      changeSet([jsFile("x.test.ts")], "/tmp/ai-verify-does-not-exist-xyz"),
     );
 
     expect(check.status).toBe("error");

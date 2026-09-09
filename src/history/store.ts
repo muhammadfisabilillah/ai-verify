@@ -57,8 +57,7 @@ export function defaultHistoryFile(): string {
     return explicit;
   }
 
-  const cache =
-    process.env["XDG_CACHE_HOME"] ?? path.join(homedir(), ".cache");
+  const cache = process.env["XDG_CACHE_HOME"] ?? path.join(homedir(), ".cache");
 
   return path.join(cache, "ai-verify", "runs.jsonl");
 }

@@ -12,9 +12,7 @@ function risk(level: RiskAssessment["level"]): RiskAssessment {
   return { level, score: 0, factors: [] };
 }
 
-function check(
-  overrides: Partial<VerificationCheck> = {},
-): VerificationCheck {
+function check(overrides: Partial<VerificationCheck> = {}): VerificationCheck {
   return {
     id: "c",
     name: "C",
@@ -102,9 +100,7 @@ describe("deriveVerdict", () => {
 
   it("REVIEW on high findings in low-risk changes", () => {
     expect(
-      deriveVerdict(
-        result({ findings: [finding("high")], risk: risk("low") }),
-      ),
+      deriveVerdict(result({ findings: [finding("high")], risk: risk("low") })),
     ).toBe("REVIEW");
   });
 

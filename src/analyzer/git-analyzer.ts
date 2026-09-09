@@ -14,11 +14,7 @@ import { detectLanguage } from "./language.js";
 
 const execFileAsync = promisify(execFile);
 
-type GitChangeStatus =
-  | "added"
-  | "modified"
-  | "deleted"
-  | "renamed";
+type GitChangeStatus = "added" | "modified" | "deleted" | "renamed";
 
 interface GitChange {
   path: string;
@@ -61,28 +57,16 @@ export class GitAnalyzer implements Analyzer {
 
     return {
       files,
-      totalAdditions: files.reduce(
-        (total, file) => total + file.additions,
-        0,
-      ),
-      totalDeletions: files.reduce(
-        (total, file) => total + file.deletions,
-        0,
-      ),
+      totalAdditions: files.reduce((total, file) => total + file.additions, 0),
+      totalDeletions: files.reduce((total, file) => total + file.deletions, 0),
     };
   }
 
-  private async assertGitRepository(
-    repositoryPath: string,
-  ): Promise<void> {
+  private async assertGitRepository(repositoryPath: string): Promise<void> {
     try {
-      await execFileAsync(
-        "git",
-        ["rev-parse", "--is-inside-work-tree"],
-        {
-          cwd: repositoryPath,
-        },
-      );
+      await execFileAsync("git", ["rev-parse", "--is-inside-work-tree"], {
+        cwd: repositoryPath,
+      });
     } catch {
       throw new Error(
         `The target directory is not a Git repository: ${repositoryPath}`,
@@ -211,9 +195,7 @@ export class GitAnalyzer implements Analyzer {
     }
   }
 
-  private async getUntrackedFiles(
-    repositoryPath: string,
-  ): Promise<string[]> {
+  private async getUntrackedFiles(repositoryPath: string): Promise<string[]> {
     const { stdout } = await execFileAsync(
       "git",
       ["ls-files", "--others", "--exclude-standard"],
@@ -289,7 +271,11 @@ export class GitAnalyzer implements Analyzer {
     try {
       const { stdout } = await execFileAsync(
         "git",
-        [...this.diffBaseArgs(includeUncommittedChanges, hasHead), "--numstat", "-M"],
+        [
+          ...this.diffBaseArgs(includeUncommittedChanges, hasHead),
+          "--numstat",
+          "-M",
+        ],
         { cwd: repositoryPath },
       );
 
@@ -316,11 +302,13 @@ export class GitAnalyzer implements Analyzer {
     return stats;
   }
 
-  private parseNumstatLine(line: string): {
-    keys: string[];
-    additions: number;
-    deletions: number;
-  } | undefined {
+  private parseNumstatLine(line: string):
+    | {
+        keys: string[];
+        additions: number;
+        deletions: number;
+      }
+    | undefined {
     const parts = line.split("\t");
 
     if (parts.length < 3) {
@@ -374,16 +362,10 @@ export class GitAnalyzer implements Analyzer {
     deletions: number;
   }> {
     if (change.changeType === "added") {
-      const isTracked = await this.isTrackedFile(
-        repositoryPath,
-        change.path,
-      );
+      const isTracked = await this.isTrackedFile(repositoryPath, change.path);
 
       if (!isTracked) {
-        return this.countUntrackedFileLines(
-          repositoryPath,
-          change.path,
-        );
+        return this.countUntrackedFileLines(repositoryPath, change.path);
       }
     }
 

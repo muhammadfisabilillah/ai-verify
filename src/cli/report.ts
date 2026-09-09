@@ -25,7 +25,9 @@ export function printBanner(
     }
   }
 
-  console.log(`AI Verify v${version} — AI can generate code. AI Verify helps verify it.`);
+  console.log(
+    `AI Verify v${version} — AI can generate code. AI Verify helps verify it.`,
+  );
   console.log("------------------------------");
 }
 
@@ -106,7 +108,9 @@ export function printVerificationReport(result: VerificationResult): void {
         ? ` (${finding.file}${finding.line !== undefined ? `:${finding.line}` : ""})`
         : "";
 
-    console.log(`  [${finding.severity.toUpperCase()}] ${finding.title}${location}`);
+    console.log(
+      `  [${finding.severity.toUpperCase()}] ${finding.title}${location}`,
+    );
   }
 
   console.log(`Result: ${deriveVerdict(result)}`);

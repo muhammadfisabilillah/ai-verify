@@ -1,11 +1,7 @@
 import type { Finding } from "./finding.js";
 import type { RiskAssessment } from "./risk.js";
 
-export type VerificationStatus =
-  | "passed"
-  | "failed"
-  | "skipped"
-  | "error";
+export type VerificationStatus = "passed" | "failed" | "skipped" | "error";
 
 export type Verdict = "PASS" | "REVIEW" | "BLOCK";
 

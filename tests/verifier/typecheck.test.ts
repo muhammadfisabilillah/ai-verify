@@ -18,7 +18,10 @@ function tsFile(filePath: string): FileChange {
   };
 }
 
-function changeSet(files: FileChange[], repo: string): { repositoryPath: string; changeSet: ChangeSet } {
+function changeSet(
+  files: FileChange[],
+  repo: string,
+): { repositoryPath: string; changeSet: ChangeSet } {
   return {
     repositoryPath: repo,
     changeSet: {
@@ -67,37 +70,29 @@ describe("TypeCheckVerifier", () => {
     expect(check.reason).toMatch(/no typescript/i);
   });
 
-  it(
-    "passes on a clean TypeScript project",
-    async () => {
-      const verifier = new TypeCheckVerifier();
-      const check = await verifier.run(changeSet([tsFile("ok.ts")], passDir));
+  it("passes on a clean TypeScript project", async () => {
+    const verifier = new TypeCheckVerifier();
+    const check = await verifier.run(changeSet([tsFile("ok.ts")], passDir));
 
-      expect(check.status).toBe("passed");
-      expect(check.findings).toEqual([]);
-    },
-    30_000,
-  );
+    expect(check.status).toBe("passed");
+    expect(check.findings).toEqual([]);
+  }, 30_000);
 
-  it(
-    "fails with parsed findings on type errors",
-    async () => {
-      const verifier = new TypeCheckVerifier();
-      const check = await verifier.run(changeSet([tsFile("bad.ts")], failDir));
+  it("fails with parsed findings on type errors", async () => {
+    const verifier = new TypeCheckVerifier();
+    const check = await verifier.run(changeSet([tsFile("bad.ts")], failDir));
 
-      expect(check.status).toBe("failed");
-      expect(check.findings.length).toBeGreaterThan(0);
-      expect(check.findings[0]).toMatchObject({
-        source: "typecheck",
-        severity: "high",
-        category: "reliability",
-        ruleId: "TS2322",
-        line: 1,
-      });
-      expect(check.findings[0]?.file).toContain("bad.ts");
-    },
-    30_000,
-  );
+    expect(check.status).toBe("failed");
+    expect(check.findings.length).toBeGreaterThan(0);
+    expect(check.findings[0]).toMatchObject({
+      source: "typecheck",
+      severity: "high",
+      category: "reliability",
+      ruleId: "TS2322",
+      line: 1,
+    });
+    expect(check.findings[0]?.file).toContain("bad.ts");
+  }, 30_000);
 
   it("errors when the repository path is unusable", async () => {
     const verifier = new TypeCheckVerifier();
@@ -109,21 +104,17 @@ describe("TypeCheckVerifier", () => {
     expect(check.reason).toMatch(/cannot access/i);
   });
 
-  it(
-    "skips when tsc is not available in the target repository",
-    async () => {
-      // A bare temp dir outside this repo tree has no local typescript,
-      // so `npx --no-install tsc` must fail without touching the network.
-      const bare = mkdtempSync(path.join(tmpdir(), "ai-verify-no-tsc-"));
-      tempDirs.push(bare);
+  it("skips when tsc is not available in the target repository", async () => {
+    // A bare temp dir outside this repo tree has no local typescript,
+    // so `npx --no-install tsc` must fail without touching the network.
+    const bare = mkdtempSync(path.join(tmpdir(), "ai-verify-no-tsc-"));
+    tempDirs.push(bare);
 
-      const verifier = new TypeCheckVerifier();
-      const check = await verifier.run(changeSet([tsFile("app.ts")], bare));
+    const verifier = new TypeCheckVerifier();
+    const check = await verifier.run(changeSet([tsFile("app.ts")], bare));
 
-      expect(check.status).toBe("skipped");
-      expect(check.findings).toEqual([]);
-      expect(check.reason).toMatch(/not available/i);
-    },
-    30_000,
-  );
+    expect(check.status).toBe("skipped");
+    expect(check.findings).toEqual([]);
+    expect(check.reason).toMatch(/not available/i);
+  }, 30_000);
 });

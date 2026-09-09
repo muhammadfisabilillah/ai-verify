@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import type { ChangeSet, RiskAssessment } from "../../src/core/types/index.js";
 import { selectVerifiers } from "../../src/verifier/select.js";
 
-function changeSet(paths: Array<{ path: string; language?: string }>): ChangeSet {
+function changeSet(
+  paths: Array<{ path: string; language?: string }>,
+): ChangeSet {
   const files = paths.map(({ path, language }) => {
     if (language === undefined) {
       return {
@@ -86,7 +88,10 @@ describe("selectVerifiers", () => {
 
   it("selects ruff and pytest for python changes", () => {
     const verifiers = selectVerifiers(
-      changeSet([{ path: "README.md" }, { path: "main.py", language: "python" }]),
+      changeSet([
+        { path: "README.md" },
+        { path: "main.py", language: "python" },
+      ]),
       risk("low", 10),
     );
 

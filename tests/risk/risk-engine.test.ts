@@ -75,8 +75,9 @@ describe("RiskEngineV01", () => {
       changeSet([file("src/auth/login.ts", 30, 4, "typescript")]),
     );
 
-    expect(factorNames(changeSet([file("src/auth/login.ts", 30, 4, "typescript")])))
-      .toContain("Authentication change");
+    expect(
+      factorNames(changeSet([file("src/auth/login.ts", 30, 4, "typescript")])),
+    ).toContain("Authentication change");
     expect(result.factors).toContainEqual(
       expect.objectContaining({ name: "No related tests", score: 12 }),
     );
@@ -116,8 +117,9 @@ describe("RiskEngineV01", () => {
 
     expect(result.score).toBe(25);
     expect(result.level).toBe("low");
-    expect(factorNames(changeSet([file("prisma/migrations/001_init.sql", 50, 0)])))
-      .not.toContain("No related tests");
+    expect(
+      factorNames(changeSet([file("prisma/migrations/001_init.sql", 50, 0)])),
+    ).not.toContain("No related tests");
   });
 
   it("flags configuration change", () => {

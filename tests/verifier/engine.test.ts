@@ -8,10 +8,17 @@ import type {
 import { VerificationEngine } from "../../src/verifier/engine.js";
 import type { VerifierContext } from "../../src/verifier/verifier.js";
 
-const changeSet: ChangeSet = { files: [], totalAdditions: 0, totalDeletions: 0 };
+const changeSet: ChangeSet = {
+  files: [],
+  totalAdditions: 0,
+  totalDeletions: 0,
+};
 const risk: RiskAssessment = { score: 10, level: "low", factors: [] };
 
-function stubCheck(id: string, findings: VerificationCheck["findings"] = []): VerificationCheck {
+function stubCheck(
+  id: string,
+  findings: VerificationCheck["findings"] = [],
+): VerificationCheck {
   return { id, name: id, status: "passed", durationMs: 1, findings };
 }
 
@@ -78,7 +85,8 @@ describe("VerificationEngine", () => {
         {
           id: "slow",
           name: "Slow",
-          run: (_ctx: VerifierContext) => new Promise<VerificationCheck>(() => {}),
+          run: (_ctx: VerifierContext) =>
+            new Promise<VerificationCheck>(() => {}),
         },
       ],
       { timeoutMs: 50 },

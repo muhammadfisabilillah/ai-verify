@@ -1,14 +1,6 @@
-export type ChangeType =
-  | "added"
-  | "modified"
-  | "deleted"
-  | "renamed";
+export type ChangeType = "added" | "modified" | "deleted" | "renamed";
 
-export type ChangeSource =
-  | "human"
-  | "ai"
-  | "mixed"
-  | "unknown";
+export type ChangeSource = "human" | "ai" | "mixed" | "unknown";
 
 export interface FileChange {
   path: string;

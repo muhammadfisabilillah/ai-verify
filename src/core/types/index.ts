@@ -1,6 +1,4 @@
-export type {
-  AnalysisRequest,
-} from "./analysis.js";
+export type { AnalysisRequest } from "./analysis.js";
 
 export type {
   ChangeType,
@@ -16,11 +14,7 @@ export type {
   Finding,
 } from "./finding.js";
 
-export type {
-  RiskLevel,
-  RiskFactor,
-  RiskAssessment,
-} from "./risk.js";
+export type { RiskLevel, RiskFactor, RiskAssessment } from "./risk.js";
 
 export type {
   VerificationStatus,

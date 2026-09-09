@@ -58,7 +58,9 @@ const PATH_RULES: PathRule[] = [
     name: "Security-sensitive file",
     score: 20,
     reason: "Touches security-sensitive code",
-    patterns: [/crypto|cipher|\bhash\b|cert|\btls\b|\bssl\b|security|sanitiz|xss|csrf|inject/i],
+    patterns: [
+      /crypto|cipher|\bhash\b|cert|\btls\b|\bssl\b|security|sanitiz|xss|csrf|inject/i,
+    ],
   },
   {
     name: "Configuration / infra change",
@@ -74,7 +76,8 @@ const PATH_RULES: PathRule[] = [
   },
 ];
 
-const TEST_PATH = /__tests__|[/]tests?[/]|\.test\.|\.spec\.|_test\.go$|test_.*\.py$/i;
+const TEST_PATH =
+  /__tests__|[/]tests?[/]|\.test\.|\.spec\.|_test\.go$|test_.*\.py$/i;
 
 function isTestFile(filePath: string): boolean {
   return TEST_PATH.test(filePath);
@@ -109,17 +112,13 @@ function collectPathFactors(changeSet: ChangeSet): RiskFactor[] {
 }
 
 function collectTestFactor(changeSet: ChangeSet): RiskFactor[] {
-  const codeChanged = changeSet.files.some((file) =>
-    isCodeFile(file.language),
-  );
+  const codeChanged = changeSet.files.some((file) => isCodeFile(file.language));
 
   if (!codeChanged) {
     return [];
   }
 
-  const testChanged = changeSet.files.some((file) =>
-    isTestFile(file.path),
-  );
+  const testChanged = changeSet.files.some((file) => isTestFile(file.path));
 
   if (testChanged) {
     return [];
