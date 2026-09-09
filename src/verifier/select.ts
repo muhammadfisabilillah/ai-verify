@@ -5,6 +5,7 @@ import { PytestVerifier, isPythonFile } from "./pytest.js";
 import { RuffVerifier } from "./ruff.js";
 import { SecretsVerifier } from "./secrets.js";
 import { TypeCheckVerifier, isTypeScriptFile } from "./typecheck.js";
+import { VitestVerifier } from "./vitest.js";
 import type { Verifier } from "./verifier.js";
 
 export type VerifierSelector = (
@@ -37,6 +38,7 @@ export function selectVerifiers(
 
   if (touchesLintable) {
     verifiers.push(new EslintVerifier());
+    verifiers.push(new VitestVerifier());
   }
 
   const touchesPython = changeSet.files.some((file) =>

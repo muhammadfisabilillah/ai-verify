@@ -42,6 +42,7 @@ describe("selectVerifiers", () => {
     expect(verifiers.map((v) => v.id)).toEqual([
       "typecheck",
       "lint",
+      "vitest",
       "secrets",
     ]);
   });
@@ -55,6 +56,7 @@ describe("selectVerifiers", () => {
     expect(verifiers.map((v) => v.id)).toEqual([
       "typecheck",
       "lint",
+      "vitest",
       "secrets",
     ]);
   });
@@ -65,7 +67,7 @@ describe("selectVerifiers", () => {
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["lint", "secrets"]);
+    expect(verifiers.map((v) => v.id)).toEqual(["lint", "vitest", "secrets"]);
   });
 
   it("selects secret scan even for docs-only changes", () => {
@@ -105,6 +107,7 @@ describe("selectVerifiers", () => {
       expect(selectVerifiers(changes, r).map((v) => v.id)).toEqual([
         "typecheck",
         "lint",
+        "vitest",
         "secrets",
       ]);
     }

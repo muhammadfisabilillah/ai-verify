@@ -1071,7 +1071,7 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 [x] Verification interface
 [x] Type checking
 [x] Linting (ESLint)
-[ ] Testing
+[x] Testing (Vitest for JS/TS, pytest for Python)
 [x] Basic secret scanning (SecretsVerifier, stdlib-only, no external tool)
 [ ] Dependency and SAST checks
 [x] Finding aggregation
