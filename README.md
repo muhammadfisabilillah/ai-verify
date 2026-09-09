@@ -56,14 +56,14 @@ flowchart LR
 
 ## Verifiers
 
-| Check        | Runs when                        | Tool used                       |
-| ------------ | -------------------------------- | ------------------------------- |
-| Type Check   | TypeScript files changed         | `tsc` from the target repo      |
-| Lint         | JavaScript/TypeScript changed    | `ESLint` + config in target repo |
-| JS/TS Tests  | JS/TS test files changed         | `vitest` in the target repo     |
-| Ruff         | Python files changed             | `ruff` on `PATH`                |
-| Python Tests | Python test files changed        | `pytest` in the environment     |
-| Secret Scan  | Any file added or modified       | Built in (no external tool)     |
+| Check        | Runs when                     | Tool used                        |
+| ------------ | ----------------------------- | -------------------------------- |
+| Type Check   | TypeScript files changed      | `tsc` from the target repo       |
+| Lint         | JavaScript/TypeScript changed | `ESLint` + config in target repo |
+| JS/TS Tests  | JS/TS test files changed      | `vitest` in the target repo      |
+| Ruff         | Python files changed          | `ruff` on `PATH`                 |
+| Python Tests | Python test files changed     | `pytest` in the environment      |
+| Secret Scan  | Any file added or modified    | Built in (no external tool)      |
 
 A missing tool is **skipped with a reason** — never downloaded or installed
 for you. A crashed tool is reported as `error`, never silently passed.
@@ -84,10 +84,10 @@ never echoed into findings.
 
 ## Verdicts and exit codes
 
-| Verdict  | Meaning                                                        | Exit |
-| -------- | -------------------------------------------------------------- | ---- |
-| `PASS`   | All applicable checks passed, nothing found                    | 0    |
-| `REVIEW` | A check failed, a finding needs a human, or risky change unverified | 1    |
+| Verdict  | Meaning                                                                             | Exit |
+| -------- | ----------------------------------------------------------------------------------- | ---- |
+| `PASS`   | All applicable checks passed, nothing found                                         | 0    |
+| `REVIEW` | A check failed, a finding needs a human, or risky change unverified                 | 1    |
 | `BLOCK`  | A tool errored, a `critical` finding, or a `high` finding in `high`/`critical` risk | 1    |
 
 ## Output

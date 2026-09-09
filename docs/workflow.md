@@ -6,12 +6,12 @@ AI Verify adalah proyek open-source yang bertujuan membantu developer **memverif
 
 AI dapat mempercepat proses development secara signifikan. Namun, semakin besar penggunaan AI dalam software engineering, semakin penting pula kemampuan untuk memastikan bahwa kode yang dihasilkan:
 
-* benar secara teknis,
-* tidak memperkenalkan bug,
-* tidak menimbulkan vulnerability,
-* tidak merusak behavior yang sudah ada,
-* sesuai dengan konteks project,
-* dan dapat dipertanggungjawabkan oleh developer.
+- benar secara teknis,
+- tidak memperkenalkan bug,
+- tidak menimbulkan vulnerability,
+- tidak merusak behavior yang sudah ada,
+- sesuai dengan konteks project,
+- dan dapat dipertanggungjawabkan oleh developer.
 
 AI Verify dibangun dengan prinsip:
 
@@ -25,12 +25,12 @@ Penggunaan AI coding assistant dan AI agent berkembang sangat cepat.
 
 Developer sekarang dapat memberikan instruksi sederhana kepada AI dan mendapatkan:
 
-* function,
-* component,
-* API,
-* database schema,
-* authentication system,
-* bahkan satu aplikasi lengkap.
+- function,
+- component,
+- API,
+- database schema,
+- authentication system,
+- bahkan satu aplikasi lengkap.
 
 Masalahnya bukan hanya apakah AI dapat menghasilkan kode.
 
@@ -42,14 +42,14 @@ Kode yang terlihat masuk akal belum tentu benar.
 
 AI-generated code dapat mengandung:
 
-* logic errors,
-* security vulnerabilities,
-* dependency problems,
-* incorrect assumptions,
-* configuration mistakes,
-* regression,
-* missing tests,
-* dan implementasi yang tidak sesuai dengan kebutuhan sebenarnya.
+- logic errors,
+- security vulnerabilities,
+- dependency problems,
+- incorrect assumptions,
+- configuration mistakes,
+- regression,
+- missing tests,
+- dan implementasi yang tidak sesuai dengan kebutuhan sebenarnya.
 
 Selain itu, ketergantungan berlebihan terhadap AI dapat membuat developer menerima kode tanpa benar-benar memahami apa yang terjadi di dalamnya.
 
@@ -139,19 +139,19 @@ Arsitektur internal menggunakan kontrak umum sehingga analyzer dan verifier dapa
 
 Target bahasa dapat mencakup:
 
-* TypeScript
-* JavaScript
-* Python
-* Go
-* Rust
-* Java
-* PHP
-* Ruby
-* C
-* C++
-* C#
-* Swift
-* Kotlin
+- TypeScript
+- JavaScript
+- Python
+- Go
+- Rust
+- Java
+- PHP
+- Ruby
+- C
+- C++
+- C#
+- Swift
+- Kotlin
 
 Bahasa baru dapat ditambahkan tanpa harus mengubah core architecture.
 
@@ -161,13 +161,13 @@ AI Verify dirancang sebagai proyek open-source.
 
 Tujuannya adalah memungkinkan developer lain untuk:
 
-* menggunakan AI Verify,
-* memeriksa cara kerjanya,
-* menambahkan analyzer,
-* menambahkan verifier,
-* menambahkan rule,
-* membuat integration,
-* dan berkontribusi terhadap ecosystem.
+- menggunakan AI Verify,
+- memeriksa cara kerjanya,
+- menambahkan analyzer,
+- menambahkan verifier,
+- menambahkan rule,
+- membuat integration,
+- dan berkontribusi terhadap ecosystem.
 
 ---
 
@@ -179,13 +179,13 @@ AI Verify saat ini masih berada pada tahap awal development.
 
 Status:
 
-* [x] Git repository detection
-* [x] Git diff integration
-* [x] Untracked file detection
-* [x] Language detection
-* [x] ChangeSet generation
-* [x] Human-readable CLI report
-* [x] Automated GitAnalyzer tests
+- [x] Git repository detection
+- [x] Git diff integration
+- [x] Untracked file detection
+- [x] Language detection
+- [x] ChangeSet generation
+- [x] Human-readable CLI report
+- [x] Automated GitAnalyzer tests
 
 Phase 1 selesai dan stabil — development dilanjutkan ke **Risk Engine** (Phase 2, selesai).
 
@@ -301,9 +301,9 @@ ai-verify .
 
 CLI bertanggung jawab untuk:
 
-* menerima input dari user,
-* menjalankan orchestrator,
-* menampilkan hasil verification.
+- menerima input dari user,
+- menjalankan orchestrator,
+- menampilkan hasil verification.
 
 ---
 
@@ -313,9 +313,9 @@ Core merupakan bagian yang tidak seharusnya bergantung pada implementasi analyze
 
 Core berisi:
 
-* orchestration,
-* shared contracts,
-* domain types.
+- orchestration,
+- shared contracts,
+- domain types.
 
 Contohnya:
 
@@ -340,10 +340,10 @@ Folder ini berisi kontrak utama AI Verify.
 Mendefinisikan perubahan kode.
 
 ```ts
-FileChange
-ChangeSet
-ChangeType
-ChangeSource
+FileChange;
+ChangeSet;
+ChangeType;
+ChangeSource;
 ```
 
 Contoh:
@@ -496,16 +496,16 @@ GitAnalyzer
 
 GitAnalyzer saat ini dapat:
 
-* mendeteksi Git repository,
-* membaca Git diff,
-* mendeteksi modified files,
-* mendeteksi added files,
-* mendeteksi deleted files,
-* mendeteksi renamed files,
-* mendeteksi untracked files,
-* menghitung additions,
-* menghitung deletions,
-* mendeteksi bahasa berdasarkan extension.
+- mendeteksi Git repository,
+- membaca Git diff,
+- mendeteksi modified files,
+- mendeteksi added files,
+- mendeteksi deleted files,
+- mendeteksi renamed files,
+- mendeteksi untracked files,
+- menghitung additions,
+- menghitung deletions,
+- mendeteksi bahasa berdasarkan extension.
 
 Contoh:
 
@@ -1031,10 +1031,10 @@ Setiap layer harus cukup stabil sebelum layer berikutnya dibangun.
 
 CLI menjadi interface awal karena mudah digunakan oleh:
 
-* developer,
-* scripts,
-* CI/CD,
-* AI agents.
+- developer,
+- scripts,
+- CI/CD,
+- AI agents.
 
 ---
 
@@ -1225,12 +1225,12 @@ BLOCK
 
 AI Verify bukan:
 
-* AI coding assistant,
-* code generator,
-* replacement untuk developer,
-* jaminan bahwa software 100% aman,
-* pengganti security engineer,
-* atau sekadar wrapper untuk satu static analyzer.
+- AI coding assistant,
+- code generator,
+- replacement untuk developer,
+- jaminan bahwa software 100% aman,
+- pengganti security engineer,
+- atau sekadar wrapper untuk satu static analyzer.
 
 AI Verify adalah **orchestration and verification infrastructure**.
 
@@ -1295,15 +1295,15 @@ AI Verify dirancang sebagai proyek open-source.
 
 Kontribusi yang nantinya dapat diterima antara lain:
 
-* analyzer baru,
-* language support,
-* risk rules,
-* verification checks,
-* security rules,
-* CI integrations,
-* documentation,
-* tests,
-* performance improvements.
+- analyzer baru,
+- language support,
+- risk rules,
+- verification checks,
+- security rules,
+- CI integrations,
+- documentation,
+- tests,
+- performance improvements.
 
 Contribution guidelines menyusul di `README.md` — untuk saat ini:
 satu scope per commit, kontrak stabil, `npm run check && npm run test && npm run build`
