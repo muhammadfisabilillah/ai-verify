@@ -39,7 +39,11 @@ describe("selectVerifiers", () => {
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["typecheck", "lint"]);
+    expect(verifiers.map((v) => v.id)).toEqual([
+      "typecheck",
+      "lint",
+      "secrets",
+    ]);
   });
 
   it("selects typecheck and lint by extension even without language label", () => {
@@ -48,7 +52,11 @@ describe("selectVerifiers", () => {
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["typecheck", "lint"]);
+    expect(verifiers.map((v) => v.id)).toEqual([
+      "typecheck",
+      "lint",
+      "secrets",
+    ]);
   });
 
   it("selects only lint for plain JavaScript", () => {
@@ -57,13 +65,15 @@ describe("selectVerifiers", () => {
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["lint"]);
+    expect(verifiers.map((v) => v.id)).toEqual(["lint", "secrets"]);
   });
 
-  it("selects nothing for docs-only changes", () => {
+  it("selects secret scan even for docs-only changes", () => {
     expect(
-      selectVerifiers(changeSet([{ path: "README.md" }]), risk("none", 0)),
-    ).toEqual([]);
+      selectVerifiers(changeSet([{ path: "README.md" }]), risk("none", 0)).map(
+        (v) => v.id,
+      ),
+    ).toEqual(["secrets"]);
     expect(
       selectVerifiers(
         { files: [], totalAdditions: 0, totalDeletions: 0 },
@@ -78,7 +88,7 @@ describe("selectVerifiers", () => {
       risk("low", 10),
     );
 
-    expect(verifiers.map((v) => v.id)).toEqual(["ruff", "pytest"]);
+    expect(verifiers.map((v) => v.id)).toEqual(["ruff", "pytest", "secrets"]);
   });
 
   it("never drops checks at higher risk (depth only adds)", () => {
@@ -95,6 +105,7 @@ describe("selectVerifiers", () => {
       expect(selectVerifiers(changes, r).map((v) => v.id)).toEqual([
         "typecheck",
         "lint",
+        "secrets",
       ]);
     }
   });

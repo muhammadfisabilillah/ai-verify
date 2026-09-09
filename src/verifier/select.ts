@@ -3,6 +3,7 @@ import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 import { EslintVerifier, isLintableFile } from "./eslint.js";
 import { PytestVerifier, isPythonFile } from "./pytest.js";
 import { RuffVerifier } from "./ruff.js";
+import { SecretsVerifier } from "./secrets.js";
 import { TypeCheckVerifier, isTypeScriptFile } from "./typecheck.js";
 import type { Verifier } from "./verifier.js";
 
@@ -43,6 +44,14 @@ export function selectVerifiers(
   if (touchesPython) {
     verifiers.push(new RuffVerifier());
     verifiers.push(new PytestVerifier());
+  }
+
+  const touchesScannableFile = changeSet.files.some(
+    (file) => file.changeType !== "deleted",
+  );
+
+  if (touchesScannableFile) {
+    verifiers.push(new SecretsVerifier());
   }
 
   return verifiers;
