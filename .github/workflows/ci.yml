@@ -21,10 +21,8 @@ jobs:
       - run: npm run build
 
   dogfood:
-    # Exercises the published action end-to-end from a *consumer* directory.
-    # npx intentionally prefers the current project when its name@version
-    # matches the spec, so running the step with cwd inside this repo would
-    # resolve to the checkout itself (no linked bin) instead of the registry.
+    # Exercises the published action end-to-end (registry install, JSON
+    # report, verdict output) against a consumer fixture with a real change.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,5 +38,4 @@ jobs:
         uses: ./
         with:
           path: /tmp/ai-verify-consumer
-        working-directory: /tmp/ai-verify-consumer
       - run: echo "verdict=${{ steps.verify.outputs.verdict }}"

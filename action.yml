@@ -35,10 +35,16 @@ runs:
       run: |
         set -uo pipefail
         out="$RUNNER_TEMP/ai-verify.json"
+        # Isolate npx from the caller's project: npx prefers the current
+        # project when its name@version already satisfies the spec, which
+        # would resolve to the checkout itself (no linked bin) instead of
+        # the registry. A dedicated prefix forces a registry install.
+        npx_home="$RUNNER_TEMP/npx-home"
+        mkdir -p "$npx_home"
         code=0
         # Word-splitting of AI_VERIFY_ARGS is intentional: it carries extra flags.
         # shellcheck disable=SC2086
-        npx --yes "$AI_VERIFY_PACKAGE" "$AI_VERIFY_PATH" --json $AI_VERIFY_ARGS > "$out" || code=$?
+        npx --yes --prefix="$npx_home" "$AI_VERIFY_PACKAGE" "$AI_VERIFY_PATH" --json $AI_VERIFY_ARGS > "$out" || code=$?
         export AI_VERIFY_OUT="$out"
         verdict=$(node -e "const fs=require('fs');try{console.log(JSON.parse(fs.readFileSync(process.env.AI_VERIFY_OUT,'utf8')).verdict)}catch{console.log('UNKNOWN')}")
         echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
