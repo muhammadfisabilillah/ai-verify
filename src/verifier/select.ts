@@ -14,7 +14,9 @@ export type VerifierSelector = (
 
 // Risk-adaptive selection: risk only ever ADDS depth, never removes it.
 // A check that applies to a change at LOW risk still applies at HIGH risk.
-// Future checks (tests, security) branch on `risk` here.
+// Secret Scan is the risk-independent baseline (always on when files remain);
+// risk-adaptive outcomes for it derive from per-rule severity in the verdict,
+// not from selection. Future checks branch on `risk` here.
 export function selectVerifiers(
   changeSet: ChangeSet,
   _risk: RiskAssessment,

@@ -1072,7 +1072,8 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 [x] Type checking
 [x] Linting (ESLint)
 [ ] Testing
-[ ] Basic security checks
+[x] Basic secret scanning (SecretsVerifier, stdlib-only, no external tool)
+[ ] Dependency and SAST checks
 [x] Finding aggregation
 [x] Verification result
 [x] PASS / REVIEW / BLOCK verdict

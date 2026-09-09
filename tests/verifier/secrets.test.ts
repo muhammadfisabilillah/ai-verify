@@ -106,7 +106,7 @@ describe("SecretsVerifier", () => {
     expect(JSON.stringify(check.findings)).not.toContain(key);
   });
 
-  it("flags private key blocks and generic assignments", async () => {
+  it("flags private key blocks as critical and generic assignments as high", async () => {
     const repo = makeRepo({
       "key.pem": "-----BEGIN RSA PRIVATE KEY-----\nabc\n",
       "config.js": 'password = "hunter2-hunter"\n',
@@ -122,6 +122,14 @@ describe("SecretsVerifier", () => {
         "secret-private-key",
       ]),
     );
+    // High-confidence shapes BLOCK at any risk; the heuristic only
+    // REVIEWs low-risk changes and BLOCKs high-risk ones (see verdict).
+    expect(
+      check.findings.find((f) => f.ruleId === "secret-private-key"),
+    ).toMatchObject({ severity: "critical" });
+    expect(
+      check.findings.find((f) => f.ruleId === "secret-generic-assignment"),
+    ).toMatchObject({ severity: "high" });
   });
 
   it("errors when the repository path is unusable", async () => {

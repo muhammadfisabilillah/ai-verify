@@ -1,7 +1,11 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import type { Finding, VerificationCheck } from "../core/types/index.js";
+import type {
+  Finding,
+  Severity,
+  VerificationCheck,
+} from "../core/types/index.js";
 
 import type { Verifier, VerifierContext } from "./verifier.js";
 
@@ -12,6 +16,12 @@ interface SecretRule {
   ruleId: string;
   title: string;
   pattern: RegExp;
+  // High-confidence patterns (provider-shaped tokens, key blocks) are
+  // `critical`: they BLOCK at any risk level. The generic heuristic is
+  // `high`: REVIEW at low/medium risk, BLOCK at high/critical risk —
+  // the verdict derives risk-adaptivity from severity, no selector
+  // plumbing needed.
+  severity: Severity;
 }
 
 const SECRET_RULES: SecretRule[] = [
@@ -19,27 +29,32 @@ const SECRET_RULES: SecretRule[] = [
     ruleId: "secret-aws-access-key",
     title: "Possible AWS access key",
     pattern: /AKIA[0-9A-Z]{16}/,
+    severity: "critical",
   },
   {
     ruleId: "secret-private-key",
     title: "Possible private key block",
     pattern: /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/,
+    severity: "critical",
   },
   {
     ruleId: "secret-github-token",
     title: "Possible GitHub token",
     pattern: /\bghp_[0-9A-Za-z]{10,}|\bgho_[0-9A-Za-z]{10,}|\bgithub_pat_[0-9A-Za-z_]{10,}/,
+    severity: "critical",
   },
   {
     ruleId: "secret-stripe-live-key",
     title: "Possible Stripe live secret key",
     pattern: /\bsk_live_[0-9A-Za-z]{10,}/,
+    severity: "critical",
   },
   {
     ruleId: "secret-generic-assignment",
     title: "Possible hardcoded credential assignment",
     pattern:
       /\b(password|passwd|pwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)\b\s*[:=]\s*['"]?[^'"\s]{4,}/i,
+    severity: "high",
   },
 ];
 
@@ -67,7 +82,7 @@ function scanLine(
         id: `secrets-${index + 1}`,
         title: `${rule.title} in ${filePath}:${lineNumber}`,
         description: `${rule.title}. Value redacted. Remove the credential from source and rotate it.`,
-        severity: "critical",
+        severity: rule.severity,
         category: "security",
         source: "secret",
         file: filePath,
