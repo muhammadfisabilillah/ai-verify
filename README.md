@@ -77,7 +77,7 @@ npm prefix at a directory you own.
 <summary><b>Click to expand a full annotated example</b></summary>
 
 ```text
-AI Verify v0.1.0 — AI can generate code. AI Verify helps verify it.
+AI Verify v0.2.0 — AI can generate code. AI Verify helps verify it.
 ------------------------------
 Files changed : 2
 Additions     : +34
@@ -143,7 +143,7 @@ needed — check out first, then verify:
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: muhammadfisabilillah/ai-verify@v0.1.0
+- uses: muhammadfisabilillah/ai-verify@v0.2.0
 ```
 
 The step exits non-zero on `REVIEW`/`BLOCK`, failing the job. The verdict is
@@ -151,7 +151,7 @@ also exposed for conditional follow-ups:
 
 ```yaml
 - id: verify
-  uses: muhammadfisabilillah/ai-verify@v0.1.0
+  uses: muhammadfisabilillah/ai-verify@v0.2.0
 - if: steps.verify.outputs.verdict == 'BLOCK'
   run: echo "Needs a human — see the findings above."
 ```
