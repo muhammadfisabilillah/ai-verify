@@ -1107,6 +1107,7 @@ CLI menjadi interface awal karena mudah digunakan oleh:
 [ ] Git hooks
 [x] GitHub Action (`action.yml`: composite, Node 18+, `verdict` output, fails on REVIEW/BLOCK)
 [ ] GitLab CI
+[ ] Pre-commit hook
 [ ] IDE integration
 [ ] CI/CD integration
 ```
