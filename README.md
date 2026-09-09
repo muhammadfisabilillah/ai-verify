@@ -21,7 +21,7 @@ runs only the checks that fit — then reports a clear `PASS` / `REVIEW` /
 - [Verdicts and exit codes](#verdicts-and-exit-codes)
 - [Output](#output)
 - [GitHub Action](#github-action)
-- [Install options](#install-options)
+- [Install](#install)
 - [Requirements](#requirements)
 - [From source](#from-source)
 - [Honesty rules](#honesty-rules)
@@ -31,11 +31,15 @@ runs only the checks that fit — then reports a clear `PASS` / `REVIEW` /
 
 ## Quick start
 
-No clone, no install — point it at any Git repository with uncommitted changes:
+You need [Node.js](https://nodejs.org/) `>= 18`. Then — no clone, no install —
+point it at any Git repository with uncommitted changes:
 
 ```bash
 npx @fisaabil_/ai-verify@latest /path/to/your/repo
 ```
+
+You'll get a `PASS`, `REVIEW`, or `BLOCK` verdict in seconds. See
+[Install](#install) for the other ways to run it.
 
 ## How it works
 
@@ -156,24 +160,37 @@ conditional follow-ups:
 | --------- | ---------------------------------------------------------------------------- |
 | `verdict` | `PASS`, `REVIEW`, or `BLOCK` (`UNKNOWN` fails the job — never a silent pass) |
 
-## Install options
+## Install
+
+Trying it out or running it occasionally? The one-liner in
+[Quick start](#quick-start) is all you need — nothing gets installed.
+
+| If you want to…                        | Do this                                          |
+| -------------------------------------- | ------------------------------------------------ |
+| Use it everywhere via `ai-verify`      | `npm install -g @fisaabil_/ai-verify`            |
+| Lock one version for the whole team    | `npm install -D @fisaabil_/ai-verify`, then `npx ai-verify .` |
+| Check every pull request automatically | See [GitHub Action](#github-action)              |
+
+Confirm it works:
 
 ```bash
-# Global: use anywhere
-npm install -g @fisaabil_/ai-verify
-ai-verify /path/to/your/repo
-
-# One-off: no install at all
-npx @fisaabil_/ai-verify@latest /path/to/your/repo
-
-# Pinned for a team (inside your project)
-npm install -D @fisaabil_/ai-verify
-npx ai-verify .
+ai-verify --version                    # global install
+npx @fisaabil_/ai-verify@latest --version  # one-off, no install
 ```
 
-No `sudo`, no config files, no extra services. If a global install reports a
-permission error, that comes from your npm prefix setup — prefer `npx` or
-point your npm prefix at a directory you own.
+<details>
+<summary><b>Global install reports a permission error?</b></summary>
+
+Don't use `sudo` — that comes from your npm prefix setup. Either stick with
+`npx` (no install needed) or point your npm prefix at a directory you own:
+
+```bash
+npm config set prefix ~/.npm-global
+```
+
+then make sure `~/.npm-global/bin` is on your `PATH`.
+
+</details>
 
 ## Requirements
 
