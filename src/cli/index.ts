@@ -21,6 +21,7 @@ import { getVersion } from "./version.js";
 export interface RunOptions {
   json?: boolean;
   history?: boolean;
+  refRange?: string | undefined;
 }
 
 export interface CliArgs {
@@ -29,6 +30,7 @@ export interface CliArgs {
   help: boolean;
   version: boolean;
   history: boolean;
+  ref?: string | undefined;
 }
 
 export function parseArgs(argv: string[]): CliArgs {
@@ -37,8 +39,13 @@ export function parseArgs(argv: string[]): CliArgs {
   let help = false;
   let version = false;
   let history = true;
+  let ref: string | undefined;
 
-  for (const arg of argv.slice(2)) {
+  const args = argv.slice(2);
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] as string;
+
     if (arg === "--json") {
       json = true;
     } else if (arg === "--no-history") {
@@ -47,6 +54,23 @@ export function parseArgs(argv: string[]): CliArgs {
       help = true;
     } else if (arg === "--version" || arg === "-V") {
       version = true;
+    } else if (arg === "--ref") {
+      const value = args[i + 1];
+      i++;
+
+      if (value === undefined || value.startsWith("-")) {
+        throw new Error("Missing value for --ref: expected a git range.");
+      }
+
+      ref = value;
+    } else if (arg.startsWith("--ref=")) {
+      const value = arg.slice("--ref=".length);
+
+      if (!value || value.startsWith("-")) {
+        throw new Error("Missing value for --ref: expected a git range.");
+      }
+
+      ref = value;
     } else if (!arg.startsWith("-") && repositoryPath === ".") {
       repositoryPath = arg;
     } else if (!arg.startsWith("-")) {
@@ -56,7 +80,7 @@ export function parseArgs(argv: string[]): CliArgs {
     }
   }
 
-  return { repositoryPath, json, help, version, history };
+  return { repositoryPath, json, help, version, history, ref };
 }
 
 export function printHelp(): void {
@@ -69,6 +93,8 @@ Arguments:
 
 Options:
   --json        Machine-readable JSON output ({ changeSet, risk, verification, verdict })
+  --ref <range> Verify a committed git range (e.g. HEAD~1..HEAD) instead of
+                uncommitted changes
   --no-history  Skip recording this run to the local history
   -h, --help    Show this help
   -V, --version Show version
@@ -80,6 +106,7 @@ No file contents are recorded. Use --no-history to opt out.
 Examples:
   ai-verify .
   ai-verify /path/to/repo --json
+  ai-verify . --ref HEAD~1..HEAD
   ai-verify --help`);
 }
 
@@ -87,10 +114,18 @@ export async function run(
   repositoryPath: string,
   options?: RunOptions,
 ): Promise<number> {
-  const request = {
+  const request: {
+    repositoryPath: string;
+    includeUncommittedChanges: boolean;
+    refRange?: string | undefined;
+  } = {
     repositoryPath: path.resolve(repositoryPath),
     includeUncommittedChanges: true,
   };
+
+  if (options?.refRange !== undefined) {
+    request.refRange = options.refRange;
+  }
 
   const analyzer = new GitAnalyzer();
   const riskEngine = new RiskEngineV01();
@@ -119,7 +154,7 @@ export async function run(
   }
 
   printBanner(getVersion());
-  printChangeReport(changeSet);
+  printChangeReport(changeSet, request.refRange);
   printRiskReport(risk);
   printVerificationReport(verification);
 
@@ -139,7 +174,11 @@ export async function main(argv: string[] = process.argv): Promise<number> {
     return 0;
   }
 
-  return run(args.repositoryPath, { json: args.json, history: args.history });
+  return run(args.repositoryPath, {
+    json: args.json,
+    history: args.history,
+    refRange: args.ref,
+  });
 }
 
 const entryPath = fileURLToPath(import.meta.url);
