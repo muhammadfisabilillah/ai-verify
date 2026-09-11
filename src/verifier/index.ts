@@ -9,6 +9,7 @@ export { NpmAuditVerifier } from "./npm-audit.js";
 export { PipAuditVerifier } from "./pip-audit.js";
 export { GoVetVerifier } from "./go-vet.js";
 export { GoTestVerifier } from "./go-test.js";
+export { CargoCheckVerifier } from "./cargo-check.js";
 export { selectVerifiers } from "./select.js";
 export { deriveVerdict } from "./verdict.js";
 export type { VerifierSelector } from "./select.js";

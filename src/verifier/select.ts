@@ -1,5 +1,6 @@
 import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
+import { CargoCheckVerifier, isRustFile } from "./cargo-check.js";
 import { EslintVerifier, isLintableFile } from "./eslint.js";
 import { GoVetVerifier, isGoFile } from "./go-vet.js";
 import { GoTestVerifier } from "./go-test.js";
@@ -79,6 +80,14 @@ export function selectVerifiers(
   if (touchesGo) {
     verifiers.push(new GoVetVerifier());
     verifiers.push(new GoTestVerifier());
+  }
+
+  const touchesRust = changeSet.files.some((file) =>
+    isRustFile(file.path, file.language),
+  );
+
+  if (touchesRust) {
+    verifiers.push(new CargoCheckVerifier());
   }
 
   const touchesScannableFile = changeSet.files.some(
