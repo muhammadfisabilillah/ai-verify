@@ -1,6 +1,7 @@
 import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { EslintVerifier, isLintableFile } from "./eslint.js";
+import { GoVetVerifier, isGoFile } from "./go-vet.js";
 import { NpmAuditVerifier } from "./npm-audit.js";
 import { PipAuditVerifier } from "./pip-audit.js";
 import { PytestVerifier, isPythonFile } from "./pytest.js";
@@ -68,6 +69,14 @@ export function selectVerifiers(
   if (touchesPython) {
     verifiers.push(new RuffVerifier());
     verifiers.push(new PytestVerifier());
+  }
+
+  const touchesGo = changeSet.files.some((file) =>
+    isGoFile(file.path, file.language),
+  );
+
+  if (touchesGo) {
+    verifiers.push(new GoVetVerifier());
   }
 
   const touchesScannableFile = changeSet.files.some(
