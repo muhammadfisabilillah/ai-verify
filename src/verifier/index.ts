@@ -6,6 +6,7 @@ export { PytestVerifier } from "./pytest.js";
 export { SecretsVerifier } from "./secrets.js";
 export { VitestVerifier } from "./vitest.js";
 export { NpmAuditVerifier } from "./npm-audit.js";
+export { PipAuditVerifier } from "./pip-audit.js";
 export { selectVerifiers } from "./select.js";
 export { deriveVerdict } from "./verdict.js";
 export type { VerifierSelector } from "./select.js";

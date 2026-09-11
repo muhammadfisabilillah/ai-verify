@@ -2,6 +2,7 @@ import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { EslintVerifier, isLintableFile } from "./eslint.js";
 import { NpmAuditVerifier } from "./npm-audit.js";
+import { PipAuditVerifier } from "./pip-audit.js";
 import { PytestVerifier, isPythonFile } from "./pytest.js";
 import { RuffVerifier } from "./ruff.js";
 import { SecretsVerifier } from "./secrets.js";
@@ -19,6 +20,24 @@ export type VerifierSelector = (
 // Secret Scan is the risk-independent baseline (always on when files remain);
 // risk-adaptive outcomes for it derive from per-rule severity in the verdict,
 // not from selection. Future checks branch on `risk` here.
+const PYTHON_DEP_FILES = [
+  "requirements.txt",
+  "setup.py",
+  "pyproject.toml",
+  "Pipfile",
+  "setup.cfg",
+];
+
+function hasPythonDeps(changeSet: ChangeSet): boolean {
+  return changeSet.files.some(
+    (file) =>
+      PYTHON_DEP_FILES.includes(file.path) ||
+      file.path.endsWith("requirements.txt") ||
+      file.path.endsWith("setup.py") ||
+      file.path.endsWith("pyproject.toml"),
+  );
+}
+
 export function selectVerifiers(
   changeSet: ChangeSet,
   _risk: RiskAssessment,
@@ -69,6 +88,10 @@ export function selectVerifiers(
 
   if (touchesNodeDeps) {
     verifiers.push(new NpmAuditVerifier());
+  }
+
+  if (hasPythonDeps(changeSet)) {
+    verifiers.push(new PipAuditVerifier());
   }
 
   return verifiers;
