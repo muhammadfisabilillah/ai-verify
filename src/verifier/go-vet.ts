@@ -88,9 +88,10 @@ function toFinding(
   index: number,
 ): Finding {
   const filePath = diagnostic.position?.file ?? "unknown";
-  const relative = path.isAbsolute(filePath) && filePath.startsWith(repositoryPath + path.sep)
-    ? path.relative(repositoryPath, filePath)
-    : filePath;
+  const relative =
+    path.isAbsolute(filePath) && filePath.startsWith(repositoryPath + path.sep)
+      ? path.relative(repositoryPath, filePath)
+      : filePath;
 
   const finding: Finding = {
     id: `go-vet-${index + 1}`,
@@ -158,19 +159,11 @@ export class GoVetVerifier implements Verifier {
     }
 
     if (!(await hasGoMod(context.repositoryPath))) {
-      return finish(
-        "skipped",
-        [],
-        "No go.mod found. Run go mod init first.",
-      );
+      return finish("skipped", [], "No go.mod found. Run go mod init first.");
     }
 
     if (!(await isGoAvailable(context.repositoryPath))) {
-      return finish(
-        "skipped",
-        [],
-        "Go is not available in this environment.",
-      );
+      return finish("skipped", [], "Go is not available in this environment.");
     }
 
     try {
@@ -198,11 +191,7 @@ export class GoVetVerifier implements Verifier {
         }
       }
 
-      return finish(
-        "error",
-        [],
-        "Go vet execution failed.",
-      );
+      return finish("error", [], "Go vet execution failed.");
     }
   }
 }

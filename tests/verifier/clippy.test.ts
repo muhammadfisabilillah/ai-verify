@@ -34,7 +34,9 @@ async function initRepo(): Promise<string> {
   return dir;
 }
 
-function makeChangeSet(files: Array<{ path: string; changeType: "added" | "modified" | "deleted" }>): ChangeSet {
+function makeChangeSet(
+  files: Array<{ path: string; changeType: "added" | "modified" | "deleted" }>,
+): ChangeSet {
   return {
     files: files.map((f) => ({
       path: f.path,
@@ -99,7 +101,7 @@ describe("ClippyVerifier", () => {
     const repo = await initRepo();
     writeFileSync(
       path.join(repo, "Cargo.toml"),
-      "[package]\nname = \"test\"\nversion = \"0.1.0\"\n",
+      '[package]\nname = "test"\nversion = "0.1.0"\n',
     );
     writeFileSync(path.join(repo, "main.rs"), "fn main() {}\n");
     await git(repo, ["add", "-A"]);

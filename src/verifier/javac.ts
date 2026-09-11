@@ -73,7 +73,9 @@ function parseJavacOutput(stderr: string): JavaError[] {
   const lines = stderr.split("\n");
 
   for (const line of lines) {
-    const match = /^(.+?):(\d+):\s*(?:error|warning):\s*(.+)$/.exec(line.trim());
+    const match = /^(.+?):(\d+):\s*(?:error|warning):\s*(.+)$/.exec(
+      line.trim(),
+    );
     if (match) {
       const [, file, lineStr, message] = match;
       errors.push({
@@ -160,11 +162,7 @@ export class JavacVerifier implements Verifier {
     }
 
     if (!(await hasMavenOrGradle(context.repositoryPath))) {
-      return finish(
-        "skipped",
-        [],
-        "No pom.xml or build.gradle found.",
-      );
+      return finish("skipped", [], "No pom.xml or build.gradle found.");
     }
 
     if (!(await isJavaAvailable(context.repositoryPath))) {
@@ -200,11 +198,7 @@ export class JavacVerifier implements Verifier {
         }
       }
 
-      return finish(
-        "error",
-        [],
-        "Java compilation failed.",
-      );
+      return finish("error", [], "Java compilation failed.");
     }
   }
 }

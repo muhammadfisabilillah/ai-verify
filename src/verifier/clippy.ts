@@ -88,7 +88,7 @@ function toFinding(
     id: `clippy-${index + 1}`,
     title: message?.code?.code
       ? `${message.code.code}: ${message.message}`
-      : message?.message ?? "Unknown warning",
+      : (message?.message ?? "Unknown warning"),
     description: `Clippy warning in ${relative}`,
     severity: message?.level === "error" ? "high" : "low",
     category: "quality",
@@ -168,14 +168,10 @@ export class ClippyVerifier implements Verifier {
     }
 
     try {
-      await execFileAsync(
-        "cargo",
-        ["clippy", "--message-format=json"],
-        {
-          cwd: context.repositoryPath,
-          timeout: 180_000,
-        },
-      );
+      await execFileAsync("cargo", ["clippy", "--message-format=json"], {
+        cwd: context.repositoryPath,
+        timeout: 180_000,
+      });
 
       return finish("passed");
     } catch (error: unknown) {
@@ -200,11 +196,7 @@ export class ClippyVerifier implements Verifier {
         }
       }
 
-      return finish(
-        "error",
-        [],
-        "Clippy execution failed.",
-      );
+      return finish("error", [], "Clippy execution failed.");
     }
   }
 }

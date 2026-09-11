@@ -4,9 +4,15 @@ import { access } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
+import { loadConfig, type AiVerifyConfig } from "./config.js";
+
 const execFileAsync = promisify(execFile);
 
-const HOOK_CONTENT = `#!/usr/bin/env sh
+function generateHookContent(config: AiVerifyConfig): string {
+  const hookConfig = config.hook ?? {};
+  const timeout = hookConfig.timeout ?? 120;
+
+  return `#!/usr/bin/env sh
 # Installed by ai-verify — https://github.com/muhammadfisabilillah/ai-verify
 # Runs ai-verify before each commit. Blocks on BLOCK verdict.
 # Remove with: ai-verify --uninstall-hook
@@ -24,7 +30,7 @@ else
 fi
 
 # Run verification (skip history, use JSON for exit code)
-out=$($AI_VERIFY . --no-history --json 2>/dev/null) || {
+out=$(timeout ${timeout} $AI_VERIFY . --no-history --json 2>/dev/null) || {
   # ai-verify failed to run — let the commit proceed but warn
   echo "ai-verify: verification failed to run — allowing commit."
   exit 0
@@ -53,10 +59,13 @@ fi
 
 exit 0
 `;
+}
 
 const HOOK_PATH = path.join(".git", "hooks", "pre-commit");
 
-export async function isGitRepository(repositoryPath: string): Promise<boolean> {
+export async function isGitRepository(
+  repositoryPath: string,
+): Promise<boolean> {
   try {
     await execFileAsync("git", ["rev-parse", "--is-inside-work-tree"], {
       cwd: repositoryPath,
@@ -103,6 +112,11 @@ export async function installHook(
     );
   }
 
+  const config = await loadConfig(repositoryPath);
+  if (config.hook?.skip) {
+    return { installed: false, backedUp: false };
+  }
+
   const hookPath = path.join(repositoryPath, HOOK_PATH);
   let backedUp = false;
 
@@ -110,6 +124,9 @@ export async function installHook(
     const existing = await readExistingHook(repositoryPath);
 
     if (existing !== null && isAiVerifyHook(existing)) {
+      const hookContent = generateHookContent(config);
+      await writeFile(hookPath, hookContent, "utf8");
+      await chmod(hookPath, 0o755);
       return { installed: false, backedUp: false };
     }
 
@@ -120,7 +137,8 @@ export async function installHook(
     }
   }
 
-  await writeFile(hookPath, HOOK_CONTENT, "utf8");
+  const hookContent = generateHookContent(config);
+  await writeFile(hookPath, hookContent, "utf8");
   await chmod(hookPath, 0o755);
 
   return { installed: true, backedUp };

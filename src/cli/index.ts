@@ -89,7 +89,16 @@ export function parseArgs(argv: string[]): CliArgs {
     }
   }
 
-  return { repositoryPath, json, help, version, history, ref, installHook, uninstallHook };
+  return {
+    repositoryPath,
+    json,
+    help,
+    version,
+    history,
+    ref,
+    installHook,
+    uninstallHook,
+  };
 }
 
 export function printHelp(): void {
@@ -187,11 +196,14 @@ export async function main(argv: string[] = process.argv): Promise<number> {
   }
 
   if (args.installHook) {
-    const repoPath = args.repositoryPath === "." ? process.cwd() : args.repositoryPath;
+    const repoPath =
+      args.repositoryPath === "." ? process.cwd() : args.repositoryPath;
     try {
       const result = await installHook(repoPath);
       if (result.installed) {
-        console.log(`Pre-commit hook installed${result.backedUp ? " (existing hook backed up)" : ""}.`);
+        console.log(
+          `Pre-commit hook installed${result.backedUp ? " (existing hook backed up)" : ""}.`,
+        );
         return 0;
       } else {
         console.log("Pre-commit hook is already installed.");
@@ -205,11 +217,14 @@ export async function main(argv: string[] = process.argv): Promise<number> {
   }
 
   if (args.uninstallHook) {
-    const repoPath = args.repositoryPath === "." ? process.cwd() : args.repositoryPath;
+    const repoPath =
+      args.repositoryPath === "." ? process.cwd() : args.repositoryPath;
     try {
       const result = await uninstallHook(repoPath);
       if (result.removed) {
-        console.log(`Pre-commit hook removed${result.restored ? " (backup restored)" : ""}.`);
+        console.log(
+          `Pre-commit hook removed${result.restored ? " (backup restored)" : ""}.`,
+        );
         return 0;
       } else {
         console.log("No ai-verify pre-commit hook found.");

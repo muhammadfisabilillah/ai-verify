@@ -53,9 +53,7 @@ function hasPythonDeps(repositoryPath: string): boolean {
   }
 }
 
-async function isPipAuditAvailable(
-  repositoryPath: string,
-): Promise<boolean> {
+async function isPipAuditAvailable(repositoryPath: string): Promise<boolean> {
   try {
     await execFileAsync("pip-audit", ["--version"], {
       cwd: repositoryPath,
@@ -72,8 +70,7 @@ function mapSeverity(vulns: PipAuditVulnerability[]): Finding["severity"] {
 
   const hasHigh = vulns.some(
     (v) =>
-      v.id.startsWith("GHSA-") &&
-      v.description?.toLowerCase().includes("high"),
+      v.id.startsWith("GHSA-") && v.description?.toLowerCase().includes("high"),
   );
   if (hasHigh) return "high";
 
@@ -87,10 +84,7 @@ function mapSeverity(vulns: PipAuditVulnerability[]): Finding["severity"] {
   return "low";
 }
 
-function toFinding(
-  pkg: PipAuditPackage,
-  index: number,
-): Finding {
+function toFinding(pkg: PipAuditPackage, index: number): Finding {
   const vulnIds = pkg.vulns.map((v) => v.id).join(", ");
   const fixVersions = pkg.vulns
     .flatMap((v) => v.fix_versions)
@@ -170,11 +164,7 @@ export class PipAuditVerifier implements Verifier {
     };
 
     if (!hasPythonDeps(context.repositoryPath)) {
-      return finish(
-        "skipped",
-        [],
-        "No Python dependency files found.",
-      );
+      return finish("skipped", [], "No Python dependency files found.");
     }
 
     if (!(await isPipAuditAvailable(context.repositoryPath))) {
@@ -198,11 +188,7 @@ export class PipAuditVerifier implements Verifier {
       const report = parseAuditOutput(stdout);
 
       if (report === undefined) {
-        return finish(
-          "error",
-          [],
-          "Failed to parse pip-audit output.",
-        );
+        return finish("error", [], "Failed to parse pip-audit output.");
       }
 
       const findings: Finding[] = [];
@@ -247,11 +233,7 @@ export class PipAuditVerifier implements Verifier {
         }
       }
 
-      return finish(
-        "error",
-        [],
-        "pip-audit execution failed.",
-      );
+      return finish("error", [], "pip-audit execution failed.");
     }
   }
 }

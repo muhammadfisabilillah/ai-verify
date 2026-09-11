@@ -62,7 +62,10 @@ describe("installHook", () => {
     expect(result.backedUp).toBe(false);
     expect(await hookExists(repo)).toBe(true);
 
-    const content = readFileSync(path.join(repo, ".git/hooks/pre-commit"), "utf8");
+    const content = readFileSync(
+      path.join(repo, ".git/hooks/pre-commit"),
+      "utf8",
+    );
     expect(isAiVerifyHook(content)).toBe(true);
   });
 

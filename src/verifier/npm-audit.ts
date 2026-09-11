@@ -90,7 +90,9 @@ function toFinding(
       `Package: ${packageName}`,
       `Severity: ${vuln.severity}`,
       `Vulnerable: ${vuln.range}`,
-      advisory?.recommendation ? `Recommendation: ${advisory.recommendation}` : "",
+      advisory?.recommendation
+        ? `Recommendation: ${advisory.recommendation}`
+        : "",
     ]
       .filter(Boolean)
       .join("\n"),
@@ -183,37 +185,27 @@ export class NpmAuditVerifier implements Verifier {
     }
 
     if (!(await isNpmAvailable(context.repositoryPath))) {
-      return finish(
-        "skipped",
-        [],
-        "npm is not available in this environment.",
-      );
+      return finish("skipped", [], "npm is not available in this environment.");
     }
 
     try {
-      const { stdout } = await execFileAsync(
-        "npm",
-        ["audit", "--json"],
-        {
-          cwd: context.repositoryPath,
-          timeout: 120_000,
-        },
-      );
+      const { stdout } = await execFileAsync("npm", ["audit", "--json"], {
+        cwd: context.repositoryPath,
+        timeout: 120_000,
+      });
 
       const report = parseAuditOutput(stdout);
 
       if (report === undefined) {
-        return finish(
-          "error",
-          [],
-          "Failed to parse npm audit output.",
-        );
+        return finish("error", [], "Failed to parse npm audit output.");
       }
 
       const findings: Finding[] = [];
       let index = 0;
 
-      for (const [packageName, vuln] of Object.entries(report.vulnerabilities)) {
+      for (const [packageName, vuln] of Object.entries(
+        report.vulnerabilities,
+      )) {
         const advisories = vuln.via.filter(
           (v): v is NpmAuditAdvisory => typeof v === "object",
         );
@@ -242,7 +234,9 @@ export class NpmAuditVerifier implements Verifier {
           const findings: Finding[] = [];
           let index = 0;
 
-          for (const [packageName, vuln] of Object.entries(report.vulnerabilities)) {
+          for (const [packageName, vuln] of Object.entries(
+            report.vulnerabilities,
+          )) {
             const advisories = vuln.via.filter(
               (v): v is NpmAuditAdvisory => typeof v === "object",
             );
@@ -258,11 +252,7 @@ export class NpmAuditVerifier implements Verifier {
         }
       }
 
-      return finish(
-        "error",
-        [],
-        "npm audit execution failed.",
-      );
+      return finish("error", [], "npm audit execution failed.");
     }
   }
 }

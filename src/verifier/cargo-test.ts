@@ -172,14 +172,10 @@ export class CargoTestVerifier implements Verifier {
     const tempDir = mkdtempSync(path.join(tmpdir(), "ai-verify-cargo-test-"));
 
     try {
-      await execFileAsync(
-        "cargo",
-        ["test"],
-        {
-          cwd: context.repositoryPath,
-          timeout: 180_000,
-        },
-      );
+      await execFileAsync("cargo", ["test"], {
+        cwd: context.repositoryPath,
+        timeout: 180_000,
+      });
 
       return finish("passed");
     } catch (error: unknown) {
@@ -208,11 +204,7 @@ export class CargoTestVerifier implements Verifier {
         return finish("failed", findings);
       }
 
-      return finish(
-        "error",
-        [],
-        "Cargo test execution failed.",
-      );
+      return finish("error", [], "Cargo test execution failed.");
     }
   }
 }

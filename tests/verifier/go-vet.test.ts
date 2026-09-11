@@ -34,7 +34,9 @@ async function initRepo(): Promise<string> {
   return dir;
 }
 
-function makeChangeSet(files: Array<{ path: string; changeType: "added" | "modified" | "deleted" }>): ChangeSet {
+function makeChangeSet(
+  files: Array<{ path: string; changeType: "added" | "modified" | "deleted" }>,
+): ChangeSet {
   return {
     files: files.map((f) => ({
       path: f.path,

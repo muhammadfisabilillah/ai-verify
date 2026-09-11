@@ -83,7 +83,9 @@ function parseYaml(content: string): Record<string, unknown> {
     } else if (indent === 4 && currentSection && currentSubsection) {
       const section = result[currentSection];
       if (typeof section === "object" && section !== null) {
-        const subsection = (section as Record<string, unknown>)[currentSubsection];
+        const subsection = (section as Record<string, unknown>)[
+          currentSubsection
+        ];
         if (Array.isArray(subsection)) {
           const dashIndex = trimmed.indexOf("-");
           if (dashIndex !== -1) {

@@ -34,7 +34,9 @@ async function initRepo(): Promise<string> {
   return dir;
 }
 
-function makeChangeSet(files: Array<{ path: string; changeType: "added" | "modified" | "deleted" }>): ChangeSet {
+function makeChangeSet(
+  files: Array<{ path: string; changeType: "added" | "modified" | "deleted" }>,
+): ChangeSet {
   return {
     files: files.map((f) => ({
       path: f.path,
@@ -104,19 +106,22 @@ describe("NpmAuditVerifier", () => {
         dependencies: {},
       }),
     );
-    writeFileSync(path.join(repo, "package-lock.json"), JSON.stringify({
-      name: "test",
-      version: "1.0.0",
-      lockfileVersion: 3,
-      requires: true,
-      packages: {
-        "": {
-          name: "test",
-          version: "1.0.0",
-          dependencies: {},
+    writeFileSync(
+      path.join(repo, "package-lock.json"),
+      JSON.stringify({
+        name: "test",
+        version: "1.0.0",
+        lockfileVersion: 3,
+        requires: true,
+        packages: {
+          "": {
+            name: "test",
+            version: "1.0.0",
+            dependencies: {},
+          },
         },
-      },
-    }));
+      }),
+    );
     await git(repo, ["add", "-A"]);
     await git(repo, ["commit", "-qm", "init"]);
 

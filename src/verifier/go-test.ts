@@ -44,11 +44,7 @@ function parseGoTestOutput(stdout: string): GoTestFailure[] {
           Output: [],
           Action: "fail",
         };
-      } else if (
-        currentFailure &&
-        entry.Action === "output" &&
-        entry.Output
-      ) {
+      } else if (currentFailure && entry.Action === "output" && entry.Output) {
         currentFailure.Output.push(entry.Output);
       }
     } catch {
@@ -171,32 +167,20 @@ export class GoTestVerifier implements Verifier {
     }
 
     if (!(await hasGoMod(context.repositoryPath))) {
-      return finish(
-        "skipped",
-        [],
-        "No go.mod found. Run go mod init first.",
-      );
+      return finish("skipped", [], "No go.mod found. Run go mod init first.");
     }
 
     if (!(await isGoAvailable(context.repositoryPath))) {
-      return finish(
-        "skipped",
-        [],
-        "Go is not available in this environment.",
-      );
+      return finish("skipped", [], "Go is not available in this environment.");
     }
 
     const tempDir = mkdtempSync(path.join(tmpdir(), "ai-verify-go-test-"));
 
     try {
-      await execFileAsync(
-        "go",
-        ["test", "-json", "./..."],
-        {
-          cwd: context.repositoryPath,
-          timeout: 180_000,
-        },
-      );
+      await execFileAsync("go", ["test", "-json", "./..."], {
+        cwd: context.repositoryPath,
+        timeout: 180_000,
+      });
 
       return finish("passed");
     } catch (error: unknown) {
@@ -225,11 +209,7 @@ export class GoTestVerifier implements Verifier {
         return finish("failed", findings);
       }
 
-      return finish(
-        "error",
-        [],
-        "Go test execution failed.",
-      );
+      return finish("error", [], "Go test execution failed.");
     }
   }
 }

@@ -100,7 +100,7 @@ function toFinding(
     id: `cargo-check-${index + 1}`,
     title: message?.code?.code
       ? `${message.code.code}: ${message.message}`
-      : message?.message ?? "Unknown error",
+      : (message?.message ?? "Unknown error"),
     description: `Cargo check issue in ${relative}`,
     severity: message?.level === "error" ? "high" : "medium",
     category: "reliability",
@@ -180,14 +180,10 @@ export class CargoCheckVerifier implements Verifier {
     }
 
     try {
-      await execFileAsync(
-        "cargo",
-        ["check", "--message-format=json"],
-        {
-          cwd: context.repositoryPath,
-          timeout: 180_000,
-        },
-      );
+      await execFileAsync("cargo", ["check", "--message-format=json"], {
+        cwd: context.repositoryPath,
+        timeout: 180_000,
+      });
 
       return finish("passed");
     } catch (error: unknown) {
@@ -208,11 +204,7 @@ export class CargoCheckVerifier implements Verifier {
         }
       }
 
-      return finish(
-        "error",
-        [],
-        "Cargo check execution failed.",
-      );
+      return finish("error", [], "Cargo check execution failed.");
     }
   }
 }
