@@ -1,6 +1,7 @@
 import type { ChangeSet, RiskAssessment } from "../core/types/index.js";
 
 import { EslintVerifier, isLintableFile } from "./eslint.js";
+import { NpmAuditVerifier } from "./npm-audit.js";
 import { PytestVerifier, isPythonFile } from "./pytest.js";
 import { RuffVerifier } from "./ruff.js";
 import { SecretsVerifier } from "./secrets.js";
@@ -56,6 +57,18 @@ export function selectVerifiers(
 
   if (touchesScannableFile) {
     verifiers.push(new SecretsVerifier());
+  }
+
+  const touchesNodeDeps = changeSet.files.some(
+    (file) =>
+      file.path === "package.json" ||
+      file.path === "package-lock.json" ||
+      file.path === "yarn.lock" ||
+      file.path === "pnpm-lock.yaml",
+  );
+
+  if (touchesNodeDeps) {
+    verifiers.push(new NpmAuditVerifier());
   }
 
   return verifiers;
