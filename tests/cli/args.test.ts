@@ -65,6 +65,8 @@ describe("parseArgs", () => {
       help: false,
       version: false,
       history: true,
+      installHook: false,
+      uninstallHook: false,
     });
   });
 
@@ -116,6 +118,14 @@ describe("parseArgs", () => {
     expect(() => parseArgs(["node", "ai-verify", "--ref", "--json"])).toThrow(
       /Missing value for --ref/,
     );
+  });
+
+  it("parses --install-hook flag", () => {
+    expect(parseArgs(["node", "ai-verify", "--install-hook"]).installHook).toBe(true);
+  });
+
+  it("parses --uninstall-hook flag", () => {
+    expect(parseArgs(["node", "ai-verify", "--uninstall-hook"]).uninstallHook).toBe(true);
   });
 });
 

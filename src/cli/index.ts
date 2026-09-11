@@ -17,6 +17,7 @@ import {
   printVerificationReport,
 } from "./report.js";
 import { getVersion } from "./version.js";
+import { installHook, uninstallHook } from "./hooks.js";
 
 export interface RunOptions {
   json?: boolean;
@@ -31,6 +32,8 @@ export interface CliArgs {
   version: boolean;
   history: boolean;
   ref?: string | undefined;
+  installHook: boolean;
+  uninstallHook: boolean;
 }
 
 export function parseArgs(argv: string[]): CliArgs {
@@ -40,6 +43,8 @@ export function parseArgs(argv: string[]): CliArgs {
   let version = false;
   let history = true;
   let ref: string | undefined;
+  let installHook = false;
+  let uninstallHook = false;
 
   const args = argv.slice(2);
 
@@ -54,6 +59,10 @@ export function parseArgs(argv: string[]): CliArgs {
       help = true;
     } else if (arg === "--version" || arg === "-V") {
       version = true;
+    } else if (arg === "--install-hook") {
+      installHook = true;
+    } else if (arg === "--uninstall-hook") {
+      uninstallHook = true;
     } else if (arg === "--ref") {
       const value = args[i + 1];
       i++;
@@ -80,7 +89,7 @@ export function parseArgs(argv: string[]): CliArgs {
     }
   }
 
-  return { repositoryPath, json, help, version, history, ref };
+  return { repositoryPath, json, help, version, history, ref, installHook, uninstallHook };
 }
 
 export function printHelp(): void {
@@ -96,6 +105,8 @@ Options:
   --ref <range> Verify a committed git range (e.g. HEAD~1..HEAD) instead of
                 uncommitted changes
   --no-history  Skip recording this run to the local history
+  --install-hook    Install ai-verify as a git pre-commit hook
+  --uninstall-hook  Remove the ai-verify pre-commit hook
   -h, --help    Show this help
   -V, --version Show version
 
@@ -107,6 +118,7 @@ Examples:
   ai-verify .
   ai-verify /path/to/repo --json
   ai-verify . --ref HEAD~1..HEAD
+  ai-verify --install-hook
   ai-verify --help`);
 }
 
@@ -172,6 +184,42 @@ export async function main(argv: string[] = process.argv): Promise<number> {
   if (args.version) {
     console.log(getVersion());
     return 0;
+  }
+
+  if (args.installHook) {
+    const repoPath = args.repositoryPath === "." ? process.cwd() : args.repositoryPath;
+    try {
+      const result = await installHook(repoPath);
+      if (result.installed) {
+        console.log(`Pre-commit hook installed${result.backedUp ? " (existing hook backed up)" : ""}.`);
+        return 0;
+      } else {
+        console.log("Pre-commit hook is already installed.");
+        return 0;
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Failed to install hook: ${message}`);
+      return 1;
+    }
+  }
+
+  if (args.uninstallHook) {
+    const repoPath = args.repositoryPath === "." ? process.cwd() : args.repositoryPath;
+    try {
+      const result = await uninstallHook(repoPath);
+      if (result.removed) {
+        console.log(`Pre-commit hook removed${result.restored ? " (backup restored)" : ""}.`);
+        return 0;
+      } else {
+        console.log("No ai-verify pre-commit hook found.");
+        return 0;
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Failed to uninstall hook: ${message}`);
+      return 1;
+    }
   }
 
   return run(args.repositoryPath, {
