@@ -6,6 +6,7 @@ import { ClippyVerifier } from "./clippy.js";
 import { EslintVerifier, isLintableFile } from "./eslint.js";
 import { GoVetVerifier, isGoFile } from "./go-vet.js";
 import { GoTestVerifier } from "./go-test.js";
+import { JavacVerifier, isJavaFile } from "./javac.js";
 import { NpmAuditVerifier } from "./npm-audit.js";
 import { PipAuditVerifier } from "./pip-audit.js";
 import { PytestVerifier, isPythonFile } from "./pytest.js";
@@ -92,6 +93,14 @@ export function selectVerifiers(
     verifiers.push(new CargoCheckVerifier());
     verifiers.push(new ClippyVerifier());
     verifiers.push(new CargoTestVerifier());
+  }
+
+  const touchesJava = changeSet.files.some((file) =>
+    isJavaFile(file.path, file.language),
+  );
+
+  if (touchesJava) {
+    verifiers.push(new JavacVerifier());
   }
 
   const touchesScannableFile = changeSet.files.some(

@@ -12,6 +12,7 @@ export { GoTestVerifier } from "./go-test.js";
 export { CargoCheckVerifier } from "./cargo-check.js";
 export { ClippyVerifier } from "./clippy.js";
 export { CargoTestVerifier } from "./cargo-test.js";
+export { JavacVerifier } from "./javac.js";
 export { selectVerifiers } from "./select.js";
 export { deriveVerdict } from "./verdict.js";
 export type { VerifierSelector } from "./select.js";
