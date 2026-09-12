@@ -1,0 +1,46 @@
+{
+  "name": "ai-verify",
+  "displayName": "AI Verify",
+  "version": "0.2.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "description": "AI Verify - risk-adaptive verification infrastructure for AI-generated software",
+  "publisher": "fisaabil",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muhammadfisabilillah/ai-verify"
+  },
+  "categories": ["Programming Languages"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aiVerify.run",
+        "title": "AI Verify: Run Verification"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceType == file",
+          "command": "aiVerify.run",
+          "title": "AI Verify: Verify Changes"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc",
+    "watch": "tsc watch",
+    "pretest": "npm run compile",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
